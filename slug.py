@@ -4,6 +4,7 @@ import glob
 import sys
 import os
 import shutil
+import subprocess
 import Queue
 import threading
 
@@ -45,6 +46,14 @@ def initpackage(name, options):
         remotepush = None
     repo.init(os.path.join(GIT_REPO,name), remotepush)
     return repo
+
+def createpackage(name, options):
+    if not options.user:
+        print >> sys.stderr, 'user not defined'
+        sys.exit(1)
+    if subprocess.Popen(['ssh', options.user+'@'+GITSERVER, 'create', name]).wait():
+        sys.exit(1)
+    initpackage(name, options)
 
 def fetch_packages(options):
     fetch_queue = Queue.Queue()
