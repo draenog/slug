@@ -32,7 +32,11 @@ class ThreadFetch(threading.Thread):
             print '------', package, '------\n' + stderr
             self.queue.task_done()
 
-            
+def get_user():
+        email=GitRepo().configvalue('user.email')
+        if email:
+            email = email.partition('@')[0]
+        return email
 
 parser = argparse.ArgumentParser(description='PLD tool for interaction with git repos',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -45,7 +49,7 @@ parser.add_argument('--depth', help='depth of fetch', default=0)
 parser.add_argument('-n', '--newpkgs', help='download packages that do not exist on local side', action='store_true')
 parser.add_argument('-r', '--remoterefs', help='repository with list of all refs',
         default=os.path.join(os.getenv('HOME'),'PLD_clone/Refs.git'))
-parser.add_argument('-u', '--user', help='the user name to register for pushes for new repositories')
+parser.add_argument('-u', '--user', help='the user name to register for pushes for new repositories', default = get_user())
 parser.add_argument('dirpattern', nargs='?', default = '*')
 options = parser.parse_args()
 

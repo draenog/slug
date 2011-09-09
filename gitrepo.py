@@ -26,9 +26,23 @@ class GitRepo:
     def commandio(self, clist):
         return self.command(clist).communicate()
 
+    def commandexc(self, clist):
+        proc = self.command(clist)
+        (out, err) = proc.communicate()
+        if proc.returncode:
+            raise GitRepoError(err)
+        return out
+
     def commitfile(self, path, message):
         clist = ['commit', '-m', message, path]
         self.commandio(clist)
+
+    def configvalue(self, option):
+        clist = ['config', '-z', option]
+        try:
+            return self.commandexc(clist)
+        except GitRepoError:
+            return None
 
     def fetch(self, fetchlist=[], depth = 0, remotename=REMOTE_NAME):
         clist = ['fetch']
