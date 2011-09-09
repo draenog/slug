@@ -1,0 +1,31 @@
+#!/usr/bin/python -u
+
+import fcntl
+import os
+import sys
+
+from refsdata import RemoteRefsData
+from gitconst import REFREPO, REFFILE
+from gitrepo import GitRepo
+
+
+data = sys.stdin.readlines()
+
+gitrepo = os.environ.get('GL_REPO')
+if gitrepo.startswith('packages/'):
+    gitrepo = gitrepo[len('packages/'):]
+else:
+    sys.exit()
+
+with open(os.path.join(os.getenv('HOME'), REFREPO, REFFILE), 'r+') as headfile:
+    fcntl.lockf(headfile, fcntl.LOCK_EX)
+    print 'Lock obtained'
+    refs = RemoteRefsData(headfile, '*')
+    refs.put(gitrepo, data)
+    headfile.seek(0)
+    headfile.truncate()
+    refs.dump(headfile)
+    headfile.flush()
+    os.fsync(headfile.fileno())
+    headrepo = GitRepo(os.path.join(os.getenv('HOME'), REFREPO), os.path.join(os.getenv('GL_REPO_BASE_ABS'), REFREPO+'.git'))
+    headrepo.commitfile(REFFILE, 'Changes by {}'.format(os.getenv('GL_USER')))
