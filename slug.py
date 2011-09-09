@@ -38,6 +38,15 @@ def get_user():
             email = email.partition('@')[0]
         return email
 
+def initpackage(name, options):
+    repo = GitRepo(os.path.join(options.packagesdir, name))
+    if options.user:
+        remotepush = 'ssh://' + os.path.join(options.user+GIT_REPO_PUSH ,name)
+    else:
+        remotepush = None
+    repo.init(os.path.join(GIT_REPO,name), remotepush)
+    return repo
+
 parser = argparse.ArgumentParser(description='PLD tool for interaction with git repos',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('-b', '--branch', help='branch to fetch', default = 'master')
@@ -69,19 +78,17 @@ except RemoteRefsError as e:
     print >> sys.stderr, 'Problem with file {} in repository {}'.format(*e)
     sys.exit()
 
+
 print 'Read remotes data'
 for dir in sorted(refs.heads):
     gitdir = os.path.join(options.packagesdir, dir, '.git')
-    gitrepo = GitRepo(os.path.join(options.packagesdir, dir))
     if not os.path.isdir(gitdir):
         if options.newpkgs:
-            if options.user:
-                remotepush = 'ssh://' + os.path.join(options.user+GIT_REPO_PUSH ,dir)
-            else:
-                remotepush = None
-            gitrepo.init(os.path.join(GIT_REPO,dir), remotepush)
+            gitrepo = initpackage(dir, options)
         else:
             continue
+    else:
+        gitrepo = GitRepo(os.path.join(options.packagesdir, dir))
     ref2fetch = []
     for ref in refs.heads[dir]:
         if gitrepo.check_remote(ref) != refs.heads[dir][ref]:
