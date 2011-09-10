@@ -15,7 +15,6 @@ from gitconst import *
 from gitrepo import GitRepo, GitRepoError
 from refsdata import *
 
-fetch_queue = Queue.Queue()
 
 class ThreadFetch(threading.Thread):
     def __init__(self, queue, dir, depth=0):
@@ -47,6 +46,57 @@ def initpackage(name, options):
     repo.init(os.path.join(GIT_REPO,name), remotepush)
     return repo
 
+def fetch_packages(options):
+    fetch_queue = Queue.Queue()
+    for i in range(options.j):
+        t = ThreadFetch(fetch_queue, options.packagesdir, options.depth)
+        t.setDaemon(True)
+        t.start()
+
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    try:
+        refs = GitRemoteRefsData(options.remoterefs, options.branch, options.dirpattern)
+    except GitRepoError as e:
+        print >> sys.stderr, 'Cannot create repository {}'.format(e)
+        sys.exit()
+    except RemoteRefsError as e:
+        print >> sys.stderr, 'Problem with file {} in repository {}'.format(*e)
+        sys.exit()
+
+
+    print 'Read remotes data'
+    for dir in sorted(refs.heads):
+        gitdir = os.path.join(options.packagesdir, dir, '.git')
+        if not os.path.isdir(gitdir):
+            if options.newpkgs:
+                gitrepo = initpackage(dir, options)
+            else:
+                continue
+        else:
+            gitrepo = GitRepo(os.path.join(options.packagesdir, dir))
+        ref2fetch = []
+        for ref in refs.heads[dir]:
+            if gitrepo.check_remote(ref) != refs.heads[dir][ref]:
+                ref2fetch.append('+{}:{}/{}'.format(ref, REMOTEREFS, ref[len('refs/heads/'):]))
+        if ref2fetch:
+            fetch_queue.put((dir, ref2fetch))
+
+    fetch_queue.join()
+
+    if options.prune:
+        try:
+            refs = GitRemoteRefsData(options.remoterefs, '*')
+        except RemoteRefsError as e:
+            print >> sys.stderr, 'Problem with file {} in repository {}'.format(*e)
+            sys.exit()
+        for fulldir in glob.iglob(os.path.join(options.packagesdir,options.dirpattern)):
+            dir = os.path.basename(fulldir)
+            if len(refs.heads[dir]) == 0 and os.path.isdir(os.path.join(fulldir, '.git')):
+                print 'Removing', fulldir
+                shutil.rmtree(fulldir)
+
+
 parser = argparse.ArgumentParser(description='PLD tool for interaction with git repos',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('-b', '--branch', help='branch to fetch', default = 'master')
@@ -62,50 +112,4 @@ parser.add_argument('-u', '--user', help='the user name to register for pushes f
 parser.add_argument('dirpattern', nargs='?', default = '*')
 options = parser.parse_args()
 
-for i in range(options.j):
-    t = ThreadFetch(fetch_queue, options.packagesdir, options.depth)
-    t.setDaemon(True)
-    t.start()
-
-signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-try:
-    refs = GitRemoteRefsData(options.remoterefs, options.branch, options.dirpattern)
-except GitRepoError as e:
-    print >> sys.stderr, 'Cannot create repository {}'.format(e)
-    sys.exit()
-except RemoteRefsError as e:
-    print >> sys.stderr, 'Problem with file {} in repository {}'.format(*e)
-    sys.exit()
-
-
-print 'Read remotes data'
-for dir in sorted(refs.heads):
-    gitdir = os.path.join(options.packagesdir, dir, '.git')
-    if not os.path.isdir(gitdir):
-        if options.newpkgs:
-            gitrepo = initpackage(dir, options)
-        else:
-            continue
-    else:
-        gitrepo = GitRepo(os.path.join(options.packagesdir, dir))
-    ref2fetch = []
-    for ref in refs.heads[dir]:
-        if gitrepo.check_remote(ref) != refs.heads[dir][ref]:
-            ref2fetch.append('+{}:{}/{}'.format(ref, REMOTEREFS, ref[len('refs/heads/'):]))
-    if ref2fetch:
-        fetch_queue.put((dir, ref2fetch))
-
-fetch_queue.join()
-
-if options.prune:
-    try:
-        refs = GitRemoteRefsData(options.remoterefs, '*')
-    except RemoteRefsError as e:
-        print >> sys.stderr, 'Problem with file {} in repository {}'.format(*e)
-        sys.exit()
-    for fulldir in glob.iglob(os.path.join(options.packagesdir,options.dirpattern)):
-        dir = os.path.basename(fulldir)
-        if len(refs.heads[dir]) == 0 and os.path.isdir(os.path.join(fulldir, '.git')):
-            print 'Removing', fulldir
-            shutil.rmtree(fulldir)
+fetch_packages(options)
