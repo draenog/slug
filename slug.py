@@ -106,19 +106,34 @@ def fetch_packages(options):
                 shutil.rmtree(fulldir)
 
 
+common_options = argparse.ArgumentParser(add_help=False)
+common_options.add_argument('-d', '--packagesdir', help='local directory with git repositories',
+    default=os.path.join(os.getenv('HOME'),'PLD_clone/packages'))
+common_options.add_argument('-u', '--user',
+        help='the user name to register for pushes for new repositories',
+        default = get_user())
+
 parser = argparse.ArgumentParser(description='PLD tool for interaction with git repos',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('-b', '--branch', help='branch to fetch', default = 'master')
-parser.add_argument('-P', '--prune', help='prune git repositories that do no exist upstream', action='store_true')
-parser.add_argument('-j', help='number of threads to use', default=4, type=int)
-parser.add_argument('-d', '--packagesdir', help='local directory with git repositories',
-        default=os.path.join(os.getenv('HOME'),'PLD_clone/packages'))
-parser.add_argument('--depth', help='depth of fetch', default=0)
-parser.add_argument('-n', '--newpkgs', help='download packages that do not exist on local side', action='store_true')
-parser.add_argument('-r', '--remoterefs', help='repository with list of all refs',
-        default=os.path.join(os.getenv('HOME'),'PLD_clone/Refs.git'))
-parser.add_argument('-u', '--user', help='the user name to register for pushes for new repositories', default = get_user())
-parser.add_argument('dirpattern', nargs='?', default = '*')
+
+subparsers = parser.add_subparsers(help='sub-command help')
+clone = subparsers.add_parser('fetch', help='fetch repositories', parents=[common_options],
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+clone.add_argument('-b', '--branch', help='branch to fetch', default = 'master')
+clone.add_argument('-P', '--prune', help='prune git repositories that do no exist upstream',
+        action='store_true')
+clone.add_argument('-j', help='number of threads to use', default=4, type=int)
+clone.add_argument('--depth', help='depth of fetch', default=0)
+clone.add_argument('-n', '--newpkgs', help='download packages that do not exist on local side',
+        action='store_true')
+clone.add_argument('-r', '--remoterefs', help='repository with list of all refs',
+    default=os.path.join(os.getenv('HOME'),'PLD_clone/Refs.git'))
+clone.add_argument('dirpattern', nargs='?', default = '*')
+
+create = subparsers.add_parser('init', help='init new repository', parents=[common_options],
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+create.add_argument('packages', nargs='+', help='list of packages to create')
+
 options = parser.parse_args()
 
 fetch_packages(options)
