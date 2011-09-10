@@ -55,6 +55,10 @@ def createpackage(name, options):
         sys.exit(1)
     initpackage(name, options)
 
+def create_packages(options):
+    for package in options.packages:
+        createpackage(package, options)
+
 def fetch_packages(options):
     fetch_queue = Queue.Queue()
     for i in range(options.j):
@@ -129,11 +133,12 @@ clone.add_argument('-n', '--newpkgs', help='download packages that do not exist 
 clone.add_argument('-r', '--remoterefs', help='repository with list of all refs',
     default=os.path.join(os.getenv('HOME'),'PLD_clone/Refs.git'))
 clone.add_argument('dirpattern', nargs='?', default = '*')
+clone.set_defaults(func=fetch_packages)
 
 create = subparsers.add_parser('init', help='init new repository', parents=[common_options],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 create.add_argument('packages', nargs='+', help='list of packages to create')
+create.set_defaults(func=create_packages)
 
 options = parser.parse_args()
-
-fetch_packages(options)
+options.func(options)
