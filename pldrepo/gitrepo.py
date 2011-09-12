@@ -49,7 +49,7 @@ class GitRepo:
         if depth:
             clist.append('--depth={}'.format(depth))
         clist += [ remotename ] + fetchlist
-        return self.commandio(clist)
+        return self.commandexc(clist)
 
     def init(self, remotepull, remotepush = None, remotename=REMOTE_NAME):
         clist = ['git', 'init']

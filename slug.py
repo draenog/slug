@@ -71,7 +71,7 @@ def fetch_packages(options):
     try:
         refs = GitRemoteRefsData(options.remoterefs, options.branch, options.dirpattern)
     except GitRepoError as e:
-        print >> sys.stderr, 'Cannot create repository {}'.format(e)
+        print >> sys.stderr, 'Problem with repository {}: {}'.format(options.remoterefs,e)
         sys.exit()
     except RemoteRefsError as e:
         print >> sys.stderr, 'Problem with file {} in repository {}'.format(*e)
@@ -100,6 +100,9 @@ def fetch_packages(options):
     if options.prune:
         try:
             refs = GitRemoteRefsData(options.remoterefs, '*')
+        except GitRepoError as e:
+            print >> sys.stderr, 'Problem with repository {}: {}'.format(options.remoterefs,e)
+            sys.exit(1)
         except RemoteRefsError as e:
             print >> sys.stderr, 'Problem with file {} in repository {}'.format(*e)
             sys.exit()
