@@ -72,10 +72,10 @@ def fetch_packages(options):
         refs = GitRemoteRefsData(options.remoterefs, options.branch, options.dirpattern)
     except GitRepoError as e:
         print >> sys.stderr, 'Problem with repository {}: {}'.format(options.remoterefs,e)
-        sys.exit()
+        sys.exit(1)
     except RemoteRefsError as e:
         print >> sys.stderr, 'Problem with file {} in repository {}'.format(*e)
-        sys.exit()
+        sys.exit(1)
 
 
     print 'Read remotes data'
@@ -105,7 +105,7 @@ def fetch_packages(options):
             sys.exit(1)
         except RemoteRefsError as e:
             print >> sys.stderr, 'Problem with file {} in repository {}'.format(*e)
-            sys.exit()
+            sys.exit(1)
         for fulldir in glob.iglob(os.path.join(options.packagesdir,options.dirpattern)):
             dir = os.path.basename(fulldir)
             if len(refs.heads[dir]) == 0 and os.path.isdir(os.path.join(fulldir, '.git')):
