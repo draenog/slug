@@ -4,9 +4,9 @@ import fcntl
 import os
 import sys
 
-from pldrepo.refsdata import RemoteRefsData
-from pldrepo.gitconst import REFREPO, REFFILE
-from pldrepo.gitrepo import GitRepo
+from git_slug.refsdata import RemoteRefsData
+from git_slug.gitconst import REFREPO, REFFILE
+from git_slug.gitrepo import GitRepo
 
 
 data = sys.stdin.readlines()
