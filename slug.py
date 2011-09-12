@@ -12,9 +12,9 @@ import argparse
 
 import signal
 
-from gitconst import GITSERVER, GIT_REPO, GIT_REPO_PUSH, REMOTEREFS
-from gitrepo import GitRepo, GitRepoError
-from refsdata import GitRemoteRefsData, RemoteRefsError
+from pldrepo.gitconst import GITSERVER, GIT_REPO, GIT_REPO_PUSH, REMOTEREFS
+from pldrepo.gitrepo import GitRepo, GitRepoError
+from pldrepo.refsdata import GitRemoteRefsData, RemoteRefsError
 
 
 class ThreadFetch(threading.Thread):
