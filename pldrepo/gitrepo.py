@@ -31,7 +31,7 @@ class GitRepo:
         (out, err) = proc.communicate()
         if proc.returncode:
             raise GitRepoError(err)
-        return out
+        return (out, err)
 
     def commitfile(self, path, message):
         clist = ['commit', '-m', message, path]
@@ -40,7 +40,7 @@ class GitRepo:
     def configvalue(self, option):
         clist = ['config', '-z', option]
         try:
-            return self.commandexc(clist)
+            return self.commandexc(clist)[0]
         except GitRepoError:
             return None
 
