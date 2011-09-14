@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from distutils.core import setup
 
@@ -8,6 +8,7 @@ setup(name='pldrepo',
       author='Kacper Kornet',
       author_email='draenog@pld-linux.org',
       url='https://github.com/draenog/slug',
+      classifiers=['Programming Language :: Python :: 3'],
       packages=['pldrepo'],
       scripts=['slug.py']
      )

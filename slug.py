@@ -1,11 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import glob
 import sys
 import os
 import shutil
 import subprocess
-import Queue
+import queue
 import threading
 
 import argparse
@@ -29,7 +29,7 @@ class ThreadFetch(threading.Thread):
             (package, ref2fetch) = self.queue.get()
             gitrepo = GitRepo(os.path.join(self.packagesdir, package))
             (stdout, stderr) = gitrepo.fetch(ref2fetch, self.depth)
-            print '------', package, '------\n' + stderr
+            print('------', package, '------\n' + stderr)
             self.queue.task_done()
 
 def get_user():
@@ -49,7 +49,7 @@ def initpackage(name, options):
 
 def createpackage(name, options):
     if not options.user:
-        print >> sys.stderr, 'user not defined'
+        print('user not defined', file=sys.stderr)
         sys.exit(1)
     if subprocess.Popen(['ssh', options.user+'@'+GITSERVER, 'create', name]).wait():
         sys.exit(1)
@@ -60,7 +60,7 @@ def create_packages(options):
         createpackage(package, options)
 
 def fetch_packages(options):
-    fetch_queue = Queue.Queue()
+    fetch_queue = queue.Queue()
     for i in range(options.j):
         t = ThreadFetch(fetch_queue, options.packagesdir, options.depth)
         t.setDaemon(True)
@@ -71,14 +71,14 @@ def fetch_packages(options):
     try:
         refs = GitRemoteRefsData(options.remoterefs, options.branch, options.dirpattern)
     except GitRepoError as e:
-        print >> sys.stderr, 'Problem with repository {}: {}'.format(options.remoterefs,e)
+        print('Problem with repository {}: {}'.format(options.remoterefs,e), file=sys.stderr)
         sys.exit(1)
     except RemoteRefsError as e:
-        print >> sys.stderr, 'Problem with file {} in repository {}'.format(*e)
+        print('Problem with file {} in repository {}'.format(*e), file=sys.stderr)
         sys.exit(1)
 
 
-    print 'Read remotes data'
+    print('Read remotes data')
     for dir in sorted(refs.heads):
         gitdir = os.path.join(options.packagesdir, dir, '.git')
         if not os.path.isdir(gitdir):
@@ -101,15 +101,15 @@ def fetch_packages(options):
         try:
             refs = GitRemoteRefsData(options.remoterefs, '*')
         except GitRepoError as e:
-            print >> sys.stderr, 'Problem with repository {}: {}'.format(options.remoterefs,e)
+            print('Problem with repository {}: {}'.format(options.remoterefs,e), file=sys.stderr)
             sys.exit(1)
         except RemoteRefsError as e:
-            print >> sys.stderr, 'Problem with file {} in repository {}'.format(*e)
+            print('Problem with file {} in repository {}'.format(*e), file=sys.stderr)
             sys.exit(1)
         for fulldir in glob.iglob(os.path.join(options.packagesdir,options.dirpattern)):
             dir = os.path.basename(fulldir)
             if len(refs.heads[dir]) == 0 and os.path.isdir(os.path.join(fulldir, '.git')):
-                print 'Removing', fulldir
+                print('Removing', fulldir)
                 shutil.rmtree(fulldir)
 
 

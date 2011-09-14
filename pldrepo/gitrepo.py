@@ -1,4 +1,4 @@
-from gitconst import *
+from .gitconst import *
 
 import os
 from subprocess import PIPE
@@ -40,7 +40,7 @@ class GitRepo:
     def configvalue(self, option):
         clist = ['config', '-z', option]
         try:
-            return self.commandexc(clist)[0]
+            return self.commandexc(clist)[0].decode("utf-8")
         except GitRepoError:
             return None
 
