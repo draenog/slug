@@ -29,7 +29,7 @@ class ThreadFetch(threading.Thread):
             (package, ref2fetch) = self.queue.get()
             gitrepo = GitRepo(os.path.join(self.packagesdir, package))
             (stdout, stderr) = gitrepo.fetch(ref2fetch, self.depth)
-            print('------', package, '------\n' + stderr)
+            print('------', package, '------\n' + stderr.decode('utf-8'))
             self.queue.task_done()
 
 def get_user():
