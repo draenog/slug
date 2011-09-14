@@ -21,7 +21,7 @@ class GitRepo:
             self.command_prefix.append('--work-tree='+self.wtree)
 
     def command(self, clist):
-        return subprocess.Popen(self.command_prefix + clist, stdout=PIPE, stderr=PIPE)
+        return subprocess.Popen(self.command_prefix + clist, stdout=PIPE, stderr=PIPE, bufsize=-1)
 
     def commandio(self, clist):
         return self.command(clist).communicate()
