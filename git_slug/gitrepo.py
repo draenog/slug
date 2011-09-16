@@ -1,4 +1,4 @@
-from gitconst import *
+from .gitconst import *
 
 import os
 from subprocess import PIPE
@@ -21,7 +21,7 @@ class GitRepo:
             self.command_prefix.append('--work-tree='+self.wtree)
 
     def command(self, clist):
-        return subprocess.Popen(self.command_prefix + clist, stdout=PIPE, stderr=PIPE)
+        return subprocess.Popen(self.command_prefix + clist, stdout=PIPE, stderr=PIPE, bufsize=-1)
 
     def commandio(self, clist):
         return self.command(clist).communicate()
@@ -40,7 +40,7 @@ class GitRepo:
     def configvalue(self, option):
         clist = ['config', '-z', option]
         try:
-            return self.commandexc(clist)[0]
+            return self.commandexc(clist)[0].decode("utf-8")
         except GitRepoError:
             return None
 

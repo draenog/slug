@@ -2,8 +2,8 @@
 import collections
 import fnmatch
 import os
-from gitconst import EMPTYSHA1, REFFILE, REFREPO, GITSERVER
-from gitrepo import GitRepo
+from .gitconst import EMPTYSHA1, REFFILE, REFREPO, GITSERVER
+from .gitrepo import GitRepo
 
 
 class RemoteRefsError(Exception):
@@ -14,6 +14,8 @@ class RemoteRefsData:
         self.heads = collections.defaultdict(lambda: collections.defaultdict(lambda: EMPTYSHA1))
         pattern = os.path.join('refs/heads', pattern)
         for line in stream.readlines():
+            if isinstance(line, bytes):
+                line = line.decode("utf-8")
             (sha1, ref, repo) = line.split()
             if fnmatch.fnmatchcase(ref, pattern) and fnmatch.fnmatchcase(repo, dirpattern):
                 self.heads[repo][ref] = sha1
