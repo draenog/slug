@@ -11,6 +11,7 @@ import threading
 import argparse
 
 import signal
+import configparser
 
 from git_slug.gitconst import GITSERVER, GIT_REPO, GIT_REPO_PUSH, REMOTEREFS
 from git_slug.gitrepo import GitRepo, GitRepoError
@@ -32,11 +33,22 @@ class ThreadFetch(threading.Thread):
             print('------', package, '------\n' + stderr.decode('utf-8'))
             self.queue.task_done()
 
-def get_user():
-        email=GitRepo().configvalue('user.email')
-        if email:
-            email = email.partition('@')[0]
-        return email
+def readconfig(path):
+    config = configparser.ConfigParser(delimiters='=', interpolation=None, strict=False)
+    config.read(path)
+    optionslist = {}
+    if config.has_option('user','email'):
+        optionslist['user'] = config['user']['email'].partition('@')[0]
+    for option in ('newpkgs', 'prune'):
+        if config.has_option('PLD',option):
+            optionslist[option] = config.getboolean('PLD', option)
+    for option in ('branch', 'depth', 'dirpattern', 'packagesdir', 'remoterefs'):
+        if config.has_option('PLD',option):
+            optionslist[option] = config.get('PLD', option)
+    for option in ('j'):
+        if config.has_option('PLD',option):
+            optionslist[option] = config.getint('PLD', option)
+    return optionslist
 
 def initpackage(name, options):
     repo = GitRepo(os.path.join(options.packagesdir, name))
@@ -117,8 +129,7 @@ common_options = argparse.ArgumentParser(add_help=False)
 common_options.add_argument('-d', '--packagesdir', help='local directory with git repositories',
     default=os.path.join(os.getenv('HOME'),'PLD_clone/packages'))
 common_options.add_argument('-u', '--user',
-        help='the user name to register for pushes for new repositories',
-        default = get_user())
+        help='the user name to register for pushes for new repositories')
 
 parser = argparse.ArgumentParser(description='PLD tool for interaction with git repos',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -143,5 +154,6 @@ create = subparsers.add_parser('init', help='init new repository', parents=[comm
 create.add_argument('packages', nargs='+', help='list of packages to create')
 create.set_defaults(func=create_packages)
 
+parser.set_defaults(**readconfig(os.path.expanduser('~/.gitconfig')))
 options = parser.parse_args()
 options.func(options)
