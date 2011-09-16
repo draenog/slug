@@ -135,7 +135,7 @@ parser = argparse.ArgumentParser(description='PLD tool for interaction with git 
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 subparsers = parser.add_subparsers(help='sub-command help')
-clone = subparsers.add_parser('fetch', help='fetch repositories', parents=[common_options],
+clone = subparsers.add_parser('update', help='fetch repositories', parents=[common_options],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 clone.add_argument('-b', '--branch', help='branch to fetch', default = 'master')
 clone.add_argument('-P', '--prune', help='prune git repositories that do no exist upstream',
