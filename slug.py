@@ -127,7 +127,7 @@ def fetch_packages(options):
 
 common_options = argparse.ArgumentParser(add_help=False)
 common_options.add_argument('-d', '--packagesdir', help='local directory with git repositories',
-    default=os.path.join(os.getenv('HOME'),'PLD_clone/packages'))
+    default=os.path.expanduser('~/PLD_clone/packages'))
 common_options.add_argument('-u', '--user',
         help='the user name to register for pushes for new repositories')
 
@@ -145,7 +145,7 @@ clone.add_argument('--depth', help='depth of fetch', default=0)
 clone.add_argument('-n', '--newpkgs', help='download packages that do not exist on local side',
         action='store_true')
 clone.add_argument('-r', '--remoterefs', help='repository with list of all refs',
-    default=os.path.join(os.getenv('HOME'),'PLD_clone/Refs.git'))
+    default=os.path.expanduser('~/PLD_clone/Refs.git'))
 clone.add_argument('dirpattern', nargs='?', default = '*')
 clone.set_defaults(func=fetch_packages)
 
