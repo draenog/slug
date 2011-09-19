@@ -34,7 +34,7 @@ class RemoteRefsData:
                         stream.write('{} {} {}\n'.format(self.heads[repo][ref], ref, repo))
 
 class GitRemoteRefsData(RemoteRefsData):
-    def __init__(self, path, pattern, dirpattern='*'):
+    def __init__(self, path, pattern, dirpattern=('*')):
         refsrepo = GitRepo(git_dir=path)
         if not os.path.isdir(refsrepo.gdir):
             refsrepo.init('git://' + os.path.join(GITSERVER, REFREPO))
