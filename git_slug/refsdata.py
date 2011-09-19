@@ -12,12 +12,12 @@ class RemoteRefsError(Exception):
 class RemoteRefsData:
     def __init__(self, stream, pattern, dirpattern='*'):
         self.heads = collections.defaultdict(lambda: collections.defaultdict(lambda: EMPTYSHA1))
-        pattern = os.path.join('refs/heads', pattern)
+        refpatterns = list(os.path.join('refs/heads', p) for p in pattern)
         for line in stream.readlines():
             if isinstance(line, bytes):
                 line = line.decode("utf-8")
             (sha1, ref, repo) = line.split()
-            if fnmatch.fnmatchcase(ref, pattern) and fnmatch.fnmatchcase(repo, dirpattern):
+            if any(fnmatch.fnmatchcase(ref, p) for p in refpatterns) and fnmatch.fnmatchcase(repo, dirpattern):
                 self.heads[repo][ref] = sha1
 
     def put(self, repo, data):

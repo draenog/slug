@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import copy
 import glob
 import sys
 import os
@@ -17,6 +18,16 @@ from git_slug.gitconst import GITSERVER, GIT_REPO, GIT_REPO_PUSH, REMOTEREFS
 from git_slug.gitrepo import GitRepo, GitRepoError
 from git_slug.refsdata import GitRemoteRefsData, RemoteRefsError
 
+class DelAppend(argparse._AppendAction):
+    def __call__(self, parser, namespace, values, option_string=None):
+        item = copy.copy(getattr(namespace, self.dest, None)) if getattr(namespace, self.dest, None) is not None else []
+        try:
+            self._firstrun
+        except AttributeError:
+            self._firstrun = True
+            del item[:]
+        item.append(values)
+        setattr(namespace, self.dest, item)
 
 class ThreadFetch(threading.Thread):
     def __init__(self, queue, dir, depth=0):
@@ -42,9 +53,11 @@ def readconfig(path):
     for option in ('newpkgs', 'prune'):
         if config.has_option('PLD',option):
             optionslist[option] = config.getboolean('PLD', option)
-    for option in ('branch', 'depth', 'dirpattern', 'packagesdir', 'remoterefs'):
+    for option in ('depth', 'dirpattern', 'packagesdir', 'remoterefs'):
         if config.has_option('PLD',option):
             optionslist[option] = config.get('PLD', option)
+    if config.has_option('PLD','branch'):
+        optionslist['branch'] = config.get('PLD', 'branch').split()
     for option in ('j'):
         if config.has_option('PLD',option):
             optionslist[option] = config.getint('PLD', option)
@@ -137,7 +150,7 @@ parser = argparse.ArgumentParser(description='PLD tool for interaction with git 
 subparsers = parser.add_subparsers(help='sub-command help')
 clone = subparsers.add_parser('update', help='fetch repositories', parents=[common_options],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-clone.add_argument('-b', '--branch', help='branch to fetch', default = 'master')
+clone.add_argument('-b', '--branch', help='branch to fetch', action=DelAppend, default=['master'])
 clone.add_argument('-P', '--prune', help='prune git repositories that do no exist upstream',
         action='store_true')
 clone.add_argument('-j', help='number of threads to use', default=4, type=int)
