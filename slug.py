@@ -159,7 +159,7 @@ clone.add_argument('-n', '--newpkgs', help='download packages that do not exist 
         action='store_true')
 clone.add_argument('-r', '--remoterefs', help='repository with list of all refs',
     default=os.path.expanduser('~/PLD_clone/Refs.git'))
-clone.add_argument('dirpattern', nargs='?', default = '*')
+clone.add_argument('dirpattern', nargs='*', default = ['*'])
 clone.set_defaults(func=fetch_packages)
 
 create = subparsers.add_parser('init', help='init new repository', parents=[common_options],

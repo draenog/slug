@@ -11,10 +11,10 @@ class RemoteRefsError(Exception):
     pass
 
 class RemoteRefsData:
-    def __init__(self, stream, pattern, dirpattern='*'):
+    def __init__(self, stream, pattern, dirpattern=['*']):
         self.heads = collections.defaultdict(lambda: collections.defaultdict(lambda: EMPTYSHA1))
         pats = re.compile('|'.join(fnmatch.translate(os.path.join('refs/heads', p)) for p in pattern))
-        dirpat=re.compile(fnmatch.translate(dirpattern))
+        dirpat=re.compile('|'.join(fnmatch.translate(p) for p in dirpattern))
         for line in stream.readlines():
             if isinstance(line, bytes):
                 line = line.decode("utf-8")
