@@ -147,7 +147,7 @@ common_options.add_argument('-u', '--user',
 parser = argparse.ArgumentParser(description='PLD tool for interaction with git repos',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-subparsers = parser.add_subparsers(help='sub-command help')
+subparsers = parser.add_subparsers(help='[-h] [options]')
 clone = subparsers.add_parser('update', help='fetch repositories', parents=[common_options],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 clone.add_argument('-b', '--branch', help='branch to fetch', action=DelAppend, default=['master'])
