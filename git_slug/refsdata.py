@@ -2,6 +2,7 @@
 import collections
 import fnmatch
 import os
+import re
 from .gitconst import EMPTYSHA1, REFFILE, REFREPO, GITSERVER
 from .gitrepo import GitRepo
 
@@ -12,12 +13,13 @@ class RemoteRefsError(Exception):
 class RemoteRefsData:
     def __init__(self, stream, pattern, dirpattern='*'):
         self.heads = collections.defaultdict(lambda: collections.defaultdict(lambda: EMPTYSHA1))
-        refpatterns = list(os.path.join('refs/heads', p) for p in pattern)
+        pats = re.compile('|'.join(fnmatch.translate(os.path.join('refs/heads', p)) for p in pattern))
+        dirpat=re.compile(fnmatch.translate(dirpattern))
         for line in stream.readlines():
             if isinstance(line, bytes):
                 line = line.decode("utf-8")
             (sha1, ref, repo) = line.split()
-            if any(fnmatch.fnmatchcase(ref, p) for p in refpatterns) and fnmatch.fnmatchcase(repo, dirpattern):
+            if pats.match(ref) and dirpat.match(repo):
                 self.heads[repo][ref] = sha1
 
     def put(self, repo, data):
