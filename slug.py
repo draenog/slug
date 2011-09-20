@@ -53,7 +53,7 @@ def readconfig(path):
     for option in ('newpkgs', 'prune'):
         if config.has_option('PLD',option):
             optionslist[option] = config.getboolean('PLD', option)
-    for option in ('depth', 'dirpattern', 'packagesdir', 'remoterefs'):
+    for option in ('depth', 'repopattern', 'packagesdir', 'remoterefs'):
         if config.has_option('PLD',option):
             optionslist[option] = config.get('PLD', option)
     if config.has_option('PLD','branch'):
@@ -94,7 +94,7 @@ def fetch_packages(options):
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     try:
-        refs = GitRemoteRefsData(options.remoterefs, options.branch, options.dirpattern)
+        refs = GitRemoteRefsData(options.remoterefs, options.branch, options.repopattern)
     except GitRepoError as e:
         print('Problem with repository {}: {}'.format(options.remoterefs,e), file=sys.stderr)
         sys.exit(1)
@@ -131,7 +131,7 @@ def fetch_packages(options):
         except RemoteRefsError as e:
             print('Problem with file {} in repository {}'.format(*e), file=sys.stderr)
             sys.exit(1)
-        for fulldir in glob.iglob(os.path.join(options.packagesdir,options.dirpattern)):
+        for fulldir in glob.iglob(os.path.join(options.packagesdir,options.repopattern)):
             dir = os.path.basename(fulldir)
             if len(refs.heads[dir]) == 0 and os.path.isdir(os.path.join(fulldir, '.git')):
                 print('Removing', fulldir)
@@ -159,7 +159,7 @@ clone.add_argument('-n', '--newpkgs', help='download packages that do not exist 
         action='store_true')
 clone.add_argument('-r', '--remoterefs', help='repository with list of all refs',
     default=os.path.expanduser('~/PLD_clone/Refs.git'))
-clone.add_argument('dirpattern', nargs='*', default = ['*'])
+clone.add_argument('repopattern', nargs='*', default = ['*'])
 clone.set_defaults(func=fetch_packages)
 
 create = subparsers.add_parser('init', help='init new repository', parents=[common_options],
