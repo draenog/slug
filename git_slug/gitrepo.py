@@ -30,7 +30,7 @@ class GitRepo:
         proc = self.command(clist)
         (out, err) = proc.communicate()
         if proc.returncode:
-            raise GitRepoError(err)
+            raise GitRepoError(err.decode('utf-8'))
         return (out, err)
 
     def commitfile(self, path, message):
