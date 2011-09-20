@@ -103,6 +103,7 @@ def fetch_packages(options):
 
 
     print('Read remotes data')
+    updated_repos=[]
     for dir in sorted(refs.heads):
         gitdir = os.path.join(options.packagesdir, dir, '.git')
         if not os.path.isdir(gitdir):
@@ -110,6 +111,8 @@ def fetch_packages(options):
                 gitrepo = initpackage(dir, options)
             else:
                 continue
+        elif options.omitexisting:
+            continue
         else:
             gitrepo = GitRepo(os.path.join(options.packagesdir, dir))
         ref2fetch = []
@@ -118,6 +121,7 @@ def fetch_packages(options):
                 ref2fetch.append('+{}:{}/{}'.format(ref, REMOTEREFS, ref[len('refs/heads/'):]))
         if ref2fetch:
             fetch_queue.put((gitrepo, ref2fetch))
+            updated_repos.append(gitrepo)
 
     fetch_queue.join()
 
@@ -135,7 +139,14 @@ def fetch_packages(options):
             if len(refs.heads[dir]) == 0 and os.path.isdir(os.path.join(fulldir, '.git')):
                 print('Removing', fulldir)
                 shutil.rmtree(fulldir)
+    return updated_repos
 
+def clone_packages(options):
+    for repo in fetch_packages(options):
+        try:
+            repo.checkout('master')
+        except GitRepoError as e:
+            print('Problem with checking branch master in repo {}: {}'.format(repo.gdir, e), file=sys.stderr)
 
 common_options = argparse.ArgumentParser(add_help=False)
 common_options.add_argument('-d', '--packagesdir', help='local directory with git repositories',
@@ -143,28 +154,35 @@ common_options.add_argument('-d', '--packagesdir', help='local directory with gi
 common_options.add_argument('-u', '--user',
         help='the user name to register for pushes for new repositories')
 
+common_fetchoptions = argparse.ArgumentParser(add_help=False, parents=[common_options])
+common_fetchoptions.add_argument('-j', help='number of threads to use', default=4, type=int)
+common_fetchoptions.add_argument('-r', '--remoterefs', help='repository with list of all refs',
+    default=os.path.expanduser('~/PLD_clone/Refs.git'))
+common_fetchoptions.add_argument('repopattern', nargs='*', default = ['*'])
+
 parser = argparse.ArgumentParser(description='PLD tool for interaction with git repos',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 subparsers = parser.add_subparsers(help='[-h] [options]')
-update = subparsers.add_parser('update', help='fetch repositories', parents=[common_options],
+update = subparsers.add_parser('update', help='fetch repositories', parents=[common_fetchoptions],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 update.add_argument('-b', '--branch', help='branch to fetch', action=DelAppend, default=['master'])
 update.add_argument('-P', '--prune', help='prune git repositories that do no exist upstream',
         action='store_true')
-update.add_argument('-j', help='number of threads to use', default=4, type=int)
 update.add_argument('--depth', help='depth of fetch', default=0)
 update.add_argument('-n', '--newpkgs', help='download packages that do not exist on local side',
         action='store_true')
-update.add_argument('-r', '--remoterefs', help='repository with list of all refs',
-    default=os.path.expanduser('~/PLD_clone/Refs.git'))
 update.add_argument('repopattern', nargs='*', default = ['*'])
-update.set_defaults(func=fetch_packages)
+update.set_defaults(func=fetch_packages, omitexisting=False)
 
 init = subparsers.add_parser('init', help='init new repository', parents=[common_options],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 init.add_argument('packages', nargs='+', help='list of packages to create')
 init.set_defaults(func=create_packages)
+
+clone = subparsers.add_parser('clone', help='clone repositorieas', parents=[common_fetchoptions],
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+clone.set_defaults(func=clone_packages, branch='[*]', prune=False, depth=0, newpkgs=True, omitexisting=True)
 
 parser.set_defaults(**readconfig(os.path.expanduser('~/.gitconfig')))
 options = parser.parse_args()

@@ -33,6 +33,10 @@ class GitRepo:
             raise GitRepoError(err.decode('utf-8'))
         return (out, err)
 
+    def checkout(self, branch):
+        clist = ['checkout', '-m', branch]
+        return self.commandexc(clist)
+
     def commitfile(self, path, message):
         clist = ['commit', '-m', message, path]
         self.commandio(clist)
