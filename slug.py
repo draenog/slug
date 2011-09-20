@@ -148,24 +148,24 @@ parser = argparse.ArgumentParser(description='PLD tool for interaction with git 
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 subparsers = parser.add_subparsers(help='[-h] [options]')
-clone = subparsers.add_parser('update', help='fetch repositories', parents=[common_options],
+update = subparsers.add_parser('update', help='fetch repositories', parents=[common_options],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-clone.add_argument('-b', '--branch', help='branch to fetch', action=DelAppend, default=['master'])
-clone.add_argument('-P', '--prune', help='prune git repositories that do no exist upstream',
+update.add_argument('-b', '--branch', help='branch to fetch', action=DelAppend, default=['master'])
+update.add_argument('-P', '--prune', help='prune git repositories that do no exist upstream',
         action='store_true')
-clone.add_argument('-j', help='number of threads to use', default=4, type=int)
-clone.add_argument('--depth', help='depth of fetch', default=0)
-clone.add_argument('-n', '--newpkgs', help='download packages that do not exist on local side',
+update.add_argument('-j', help='number of threads to use', default=4, type=int)
+update.add_argument('--depth', help='depth of fetch', default=0)
+update.add_argument('-n', '--newpkgs', help='download packages that do not exist on local side',
         action='store_true')
-clone.add_argument('-r', '--remoterefs', help='repository with list of all refs',
+update.add_argument('-r', '--remoterefs', help='repository with list of all refs',
     default=os.path.expanduser('~/PLD_clone/Refs.git'))
-clone.add_argument('repopattern', nargs='*', default = ['*'])
-clone.set_defaults(func=fetch_packages)
+update.add_argument('repopattern', nargs='*', default = ['*'])
+update.set_defaults(func=fetch_packages)
 
-create = subparsers.add_parser('init', help='init new repository', parents=[common_options],
+init = subparsers.add_parser('init', help='init new repository', parents=[common_options],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-create.add_argument('packages', nargs='+', help='list of packages to create')
-create.set_defaults(func=create_packages)
+init.add_argument('packages', nargs='+', help='list of packages to create')
+init.set_defaults(func=create_packages)
 
 parser.set_defaults(**readconfig(os.path.expanduser('~/.gitconfig')))
 options = parser.parse_args()
