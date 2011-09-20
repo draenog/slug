@@ -38,10 +38,9 @@ class ThreadFetch(threading.Thread):
 
     def run(self):
         while True:
-            (package, ref2fetch) = self.queue.get()
-            gitrepo = GitRepo(os.path.join(self.packagesdir, package))
+            (gitrepo, ref2fetch) = self.queue.get()
             (stdout, stderr) = gitrepo.fetch(ref2fetch, self.depth)
-            print('------', package, '------\n' + stderr.decode('utf-8'))
+            print('------', gitrepo.gdir[:-len('.git')], '------\n' + stderr.decode('utf-8'))
             self.queue.task_done()
 
 def readconfig(path):
@@ -118,7 +117,7 @@ def fetch_packages(options):
             if gitrepo.check_remote(ref) != refs.heads[dir][ref]:
                 ref2fetch.append('+{}:{}/{}'.format(ref, REMOTEREFS, ref[len('refs/heads/'):]))
         if ref2fetch:
-            fetch_queue.put((dir, ref2fetch))
+            fetch_queue.put((gitrepo, ref2fetch))
 
     fetch_queue.join()
 
