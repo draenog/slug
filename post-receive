@@ -2,11 +2,13 @@
 
 import fcntl
 import os
+import tempfile
 import sys
 import subprocess
 
 from git_slug.refsdata import RemoteRefsData
 from git_slug.gitconst import REFREPO, REFFILE
+from git_slug.serverconst import WATCHDIR
 from git_slug.gitrepo import GitRepo
 
 
@@ -23,15 +25,8 @@ if gitrepo.startswith('packages/'):
 else:
     sys.exit()
 
-with open(os.path.join(os.getenv('HOME'), REFREPO, REFFILE), 'r+') as headfile:
-    fcntl.lockf(headfile, fcntl.LOCK_EX)
-    print('Lock obtained')
-    refs = RemoteRefsData(headfile, '*')
-    refs.put(gitrepo, data)
-    headfile.seek(0)
-    headfile.truncate()
-    refs.dump(headfile)
-    headfile.flush()
-    os.fsync(headfile.fileno())
-    headrepo = GitRepo(os.path.join(os.getenv('HOME'), REFREPO), os.path.join(os.getenv('GL_REPO_BASE_ABS'), REFREPO+'.git'))
-    headrepo.commitfile(REFFILE, 'Changes by {}'.format(os.getenv('GL_USER')))
+(tfile, name) = tempfile.mkstemp(prefix=gitrepo+'.', dir=WATCHDIR)
+os.write(tfile,(os.getenv('GL_USER')+'\n').encode('utf-8'))
+os.write(tfile,(gitrepo+'\n').encode('utf-8'))
+os.write(tfile,''.join(data).encode('utf-8'))
+os.close(tfile)
