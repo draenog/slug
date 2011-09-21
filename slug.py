@@ -174,7 +174,6 @@ newpkgsopt = update.add_mutually_exclusive_group()
 newpkgsopt.add_argument('-n', '--newpkgs', help='download packages that do not exist on local side',
         action='store_true')
 newpkgsopt.add_argument('-nn', '--nonewpkgs', help='do not download new packages', dest='newpkgs', action='store_false')
-update.add_argument('repopattern', nargs='*', default = ['*'])
 update.set_defaults(func=fetch_packages, omitexisting=False)
 
 init = subparsers.add_parser('init', help='init new repository', parents=[common_options],
