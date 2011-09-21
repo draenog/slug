@@ -3,6 +3,7 @@
 import fcntl
 import os
 import sys
+import subprocess
 
 from git_slug.refsdata import RemoteRefsData
 from git_slug.gitconst import REFREPO, REFFILE
@@ -10,6 +11,11 @@ from git_slug.gitrepo import GitRepo
 
 
 data = sys.stdin.readlines()
+
+mail = subprocess.Popen(["./hooks/mailnotification"], stdin=subprocess.PIPE)
+for line in data:
+    mail.stdin.write(line)
+mail.communicate()
 
 gitrepo = os.environ.get('GL_REPO')
 if gitrepo.startswith('packages/'):
