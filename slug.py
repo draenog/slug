@@ -170,9 +170,10 @@ update.add_argument('-b', '--branch', help='branch to fetch', action=DelAppend, 
 update.add_argument('-P', '--prune', help='prune git repositories that do no exist upstream',
         action='store_true')
 update.add_argument('--depth', help='depth of fetch', default=0)
-update.add_argument('-n', '--newpkgs', help='download packages that do not exist on local side',
+newpkgsopt = update.add_mutually_exclusive_group()
+newpkgsopt.add_argument('-n', '--newpkgs', help='download packages that do not exist on local side',
         action='store_true')
-update.add_argument('-nn', '--nonewpkgs', help='do not download new packages', dest='newpkgs', action='store_false')
+newpkgsopt.add_argument('-nn', '--nonewpkgs', help='do not download new packages', dest='newpkgs', action='store_false')
 update.add_argument('repopattern', nargs='*', default = ['*'])
 update.set_defaults(func=fetch_packages, omitexisting=False)
 
