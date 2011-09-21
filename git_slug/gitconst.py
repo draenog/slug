@@ -1,4 +1,4 @@
-from os.path import join
+from os.path import join, expanduser
 
 EMPTYSHA1='0000000000000000000000000000000000000000'
 REMOTE_NAME = 'origin'
@@ -12,3 +12,5 @@ GIT_REPO = 'git://' + _packages_remote
 GIT_REPO_PUSH = 'ssh://' + GITLOGIN + _packages_remote
 REFREPO = 'Refs'
 REFFILE = 'heads'
+
+WATCHDIR = expanduser('~/watchdir')
