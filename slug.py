@@ -167,13 +167,13 @@ subparsers = parser.add_subparsers(help='[-h] [options]')
 update = subparsers.add_parser('update', help='fetch repositories', parents=[common_fetchoptions],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 update.add_argument('-b', '--branch', help='branch to fetch', action=DelAppend, default=['master'])
-update.add_argument('-P', '--prune', help='prune git repositories that do no exist upstream',
-        action='store_true')
 update.add_argument('--depth', help='depth of fetch', default=0)
 newpkgsopt = update.add_mutually_exclusive_group()
 newpkgsopt.add_argument('-n', '--newpkgs', help='download packages that do not exist on local side',
         action='store_true')
 newpkgsopt.add_argument('-nn', '--nonewpkgs', help='do not download new packages', dest='newpkgs', action='store_false')
+update.add_argument('-P', '--prune', help='prune git repositories that do no exist upstream',
+        action='store_true')
 update.set_defaults(func=fetch_packages, omitexisting=False)
 
 init = subparsers.add_parser('init', help='init new repository', parents=[common_options],
