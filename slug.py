@@ -185,6 +185,10 @@ clone = subparsers.add_parser('clone', help='clone repositorieas', parents=[comm
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 clone.set_defaults(func=clone_packages, branch='[*]', prune=False, depth=0, newpkgs=True, omitexisting=True)
 
+fetch = subparsers.add_parser('fetch', help='fetch repositories', parents=[common_fetchoptions],
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+fetch.set_defaults(func=clone_packages, branch='[*]', prune=False, depth=0, newpkgs=False, omitexisting=False)
+
 parser.set_defaults(**readconfig(os.path.expanduser('~/.gitconfig')))
 options = parser.parse_args()
 options.func(options)
