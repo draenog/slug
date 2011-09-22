@@ -1,0 +1,9 @@
+* Major changes since version 0.3
+
+--nonewpkgs option to disable fetching of new packages by update if there is
+an entry newpkgs=yes in configuration file
+
+'fetch' command 
+It will fetch all branches and will store them in 'origin' remote. You can look
+at it as an faster version of executing 'git fetch' for every local repository.
+It is equivalent of 'update -b \* --nownewpkgs' 
