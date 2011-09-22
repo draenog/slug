@@ -1,0 +1,50 @@
+How to work with slug.py
+========================
+
+*. Configuration
+
+Add your name and email to git configuration:
+
+  git config --global user.email "you@example.com"
+  git config --global user.name "Your Name"
+
+If you have and RW access to PLD repositories please use
+<your_login>@pld-linunx.org as email.
+
+
+*. Get initial copy of repositories
+
+   slug.py clone <package>
+
+It will clone the chosen package to the ~/PLD_clone directory . You can clone more
+then one package in one go. For example to get all perl and python packages:
+
+   slug.py clone perl\* python\*
+
+If you are interested in all existing packages:
+
+   slug.py clone
+
+However be afraid that it will take some time to clone all of them. 
+
+
+* Update all existing repositories
+
+If you have already cloned some repositories and you want to update them:
+
+  slug.py fetch 
+
+It will fetch all branches and will store them in 'origin' remote. You can look
+at it as an faster version of executing 'git fetch' for every local repository. 
+
+
+* Advanced usage
+
+If you want to save some disk space and potentially also some time (for large
+repositories like kernel), 'slug.py update' enables to work with only some of
+the branches and shallow clones. See
+
+   slug.py update --help
+
+for more details.
+
