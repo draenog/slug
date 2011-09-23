@@ -181,7 +181,7 @@ init = subparsers.add_parser('init', help='init new repository', parents=[common
 init.add_argument('packages', nargs='+', help='list of packages to create')
 init.set_defaults(func=create_packages)
 
-clone = subparsers.add_parser('clone', help='clone repositorieas', parents=[common_fetchoptions],
+clone = subparsers.add_parser('clone', help='clone repositories', parents=[common_fetchoptions],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 clone.set_defaults(func=clone_packages, branch='[*]', prune=False, depth=0, newpkgs=True, omitexisting=True)
 
