@@ -148,6 +148,18 @@ def clone_packages(options):
         except GitRepoError as e:
             print('Problem with checking branch master in repo {}: {}'.format(repo.gdir, e), file=sys.stderr)
 
+def list_packages(options):
+    try:
+        refs = GitRemoteRefsData(options.remoterefs, options.branch, options.repopattern)
+    except GitRepoError as e:
+        print('Problem with repository {}: {}'.format(options.remoterefs,e), file=sys.stderr)
+        sys.exit(1)
+    except RemoteRefsError as e:
+        print('Problem with file {} in repository {}'.format(*e), file=sys.stderr)
+        sys.exit(1)
+    for package in sorted(refs.heads):
+        print(package)
+
 common_options = argparse.ArgumentParser(add_help=False)
 common_options.add_argument('-d', '--packagesdir', help='local directory with git repositories',
     default=os.path.expanduser('~/PLD_clone/packages'))
@@ -188,6 +200,14 @@ clone.set_defaults(func=clone_packages, branch='[*]', prune=False, depth=0, newp
 fetch = subparsers.add_parser('fetch', help='fetch repositories', parents=[common_fetchoptions],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 fetch.set_defaults(func=clone_packages, branch='[*]', prune=False, depth=0, newpkgs=False, omitexisting=False)
+
+listpkgs = subparsers.add_parser('list', help='list repositories',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+listpkgs.add_argument('-r', '--remoterefs', help='repository with list of all refs',
+    default=os.path.expanduser('~/PLD_clone/Refs.git'))
+listpkgs.add_argument('-b', '--branch', help='show packages with given branch', action=DelAppend, default=['*'])
+listpkgs.add_argument('repopattern', nargs='*', default = ['*'])
+listpkgs.set_defaults(func=list_packages)
 
 parser.set_defaults(**readconfig(os.path.expanduser('~/.gitconfig')))
 options = parser.parse_args()
