@@ -1,0 +1,101 @@
+slug.py(1)
+==========
+
+NAME
+----
+slug.py - tool to interact with PLD git repositories
+
+
+SYNOPSIS
+--------
+[verse]
+'slug.py clone' [-d dir] [-j <threads>] [-r repository]
+                 [-u user] pattern...
+'slug.py fetch' [-d dir] [-j <threads>] [-r repository]
+                 [-u user] pattern...
+'slug.py init' [-d dir] [-j <threads>] [-u user] package...
+'slug.py list' [-b pattern...] [-r repository] pattern...
+'slug.py update' [-d dir] [--depth depth] [-j <threads>] [-n|-nn] [-P]
+                 [-r repository] [-u user] pattern...
+
+
+DESCRIPTION
+-----------
+
+Facilitates common task in work with PLD git repositories
+
+
+OPTIONS
+-------
+
+-d <directory>::
+--packagesdir <directory>::
+    The local repositories are assumed to reside in $HOME/PLD_clone directory. Use this
+    options if you want to use a different location.
+
+-j <threads>::
+    Set the number of threads which are used for fetching operations.
+
+-r <repository>::
+--remoterefs <repository>::
+    The location of special git repository necessary for slug.py operations. By
+    default $HOME/PLD_clone/Refs.git is assumed.
+
+-u <user>::
+--user <user>::
+    the user name to register for pushes in new repositories. If not present value
+    derived from user.email entry in $HOME/.gitconfig is used.
+
+COMMANDS
+--------
+
+'clone' <pattern> ...::
+
+Clone the repositories which names match at least one of <patterns>.
+
+'fetch' <pattern>...::
+For every local repository matching at least one of patterns fetches upstream changes
+and updates remote branches. It is synonymous with 'update -b \* -nn'.
+
+'init' package ....::
+
+Creates list of packages on the server side and initialize local repositories to follow them.
+
+'list'::
+
+Print the names of upstream repositories matching at least one of patterns.
++
+With '-b' <pattern> only repositories containing a branch matching the pattern are
+listed. Multiple '-b' options are allowed.
+
+'update' <pattern>...::
+
+Update the remote branches in the set of packages that match at least one of patterns.
+        -b <pattern>;;
+        --branch <pattern>;;
+            Only the remote branches which names match the pattern are updated. If omitted 
+\'master'
+            is assumed.
+       --depth <depth>;;
+            Fetch at most the specified number of commits for every updated branch.
+        -n;;
+        --newpkgs;;
+            If the local repository does not exist it is initialized and the specified branches are fetched.
+        -nn;;
+        --nonewpkgs;;
+            Update only the existing local repositories. No new local repositories are created. It is the default
+            behaviour.
+        -P;;
+            Remove stale local packages, which were already removed upstream.
+
+CONFIGURATION FILE
+------------------
+
+The behaviour of slug.py can also be configured with file $HOME/.gitconfig. The
+value of all long options, with the exception of '--user option',  can be
+specified in section [PLD] in this file.
+
+AUTHOR
+------
+
+Written by Kacper Kornet <draenog at pld-linux.org>
