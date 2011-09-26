@@ -88,7 +88,7 @@ def create_packages(options):
 
 def fetch_packages(options):
     fetch_queue = queue.Queue()
-    for i in range(options.j):
+    for i in range(options.jobs):
         t = ThreadFetch(fetch_queue, options.packagesdir, options.depth)
         t.setDaemon(True)
         t.start()
@@ -170,7 +170,7 @@ common_options.add_argument('-u', '--user',
         help='the user name to register for pushes for new repositories')
 
 common_fetchoptions = argparse.ArgumentParser(add_help=False, parents=[common_options])
-common_fetchoptions.add_argument('-j', help='number of threads to use', default=4, type=int)
+common_fetchoptions.add_argument('-j', '--jobs', help='number of threads to use', default=4, type=int)
 common_fetchoptions.add_argument('-r', '--remoterefs', help='repository with list of all refs',
     default=os.path.expanduser('~/PLD_clone/Refs.git'))
 common_fetchoptions.add_argument('repopattern', nargs='*', default = ['*'])
