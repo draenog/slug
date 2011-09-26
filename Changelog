@@ -1,3 +1,7 @@
+* Major changes since version 0.4
+
+list command to print names of available packages
+
 * Major changes since version 0.3
 
 --nonewpkgs option to disable fetching of new packages by update if there is
