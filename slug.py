@@ -39,8 +39,11 @@ class ThreadFetch(threading.Thread):
     def run(self):
         while True:
             (gitrepo, ref2fetch) = self.queue.get()
-            (stdout, stderr) = gitrepo.fetch(ref2fetch, self.depth)
-            print('------', gitrepo.gdir[:-len('.git')], '------\n' + stderr.decode('utf-8'))
+            try:
+                (stdout, stderr) = gitrepo.fetch(ref2fetch, self.depth)
+                print('------', gitrepo.gdir[:-len('.git')], '------\n' + stderr.decode('utf-8'))
+            except GitRepoError as e:
+                print('------', gitrepo.gdir[:-len('.git')], '------\n', e)
             self.queue.task_done()
 
 def readconfig(path):
