@@ -14,7 +14,7 @@ import argparse
 import signal
 import configparser
 
-from git_slug.gitconst import GITSERVER, GIT_REPO, GIT_REPO_PUSH, REMOTEREFS
+from git_slug.gitconst import GITLOGIN, GITSERVER, GIT_REPO, GIT_REPO_PUSH, REMOTEREFS
 from git_slug.gitrepo import GitRepo, GitRepoError
 from git_slug.refsdata import GitRemoteRefsData, RemoteRefsError
 
@@ -50,8 +50,6 @@ def readconfig(path):
     config = configparser.ConfigParser(delimiters='=', interpolation=None, strict=False)
     config.read(path)
     optionslist = {}
-    if config.has_option('user','email'):
-        optionslist['user'] = config['user']['email'].partition('@')[0]
     for option in ('newpkgs', 'prune'):
         if config.has_option('PLD',option):
             optionslist[option] = config.getboolean('PLD', option)
@@ -67,18 +65,12 @@ def readconfig(path):
 
 def initpackage(name, options):
     repo = GitRepo(os.path.join(options.packagesdir, name))
-    if options.user:
-        remotepush = 'ssh://' + os.path.join(options.user+GIT_REPO_PUSH ,name)
-    else:
-        remotepush = None
+    remotepush = os.path.join(GIT_REPO_PUSH ,name)
     repo.init(os.path.join(GIT_REPO,name), remotepush)
     return repo
 
 def createpackage(name, options):
-    if not options.user:
-        print('user not defined', file=sys.stderr)
-        sys.exit(1)
-    if subprocess.Popen(['ssh', options.user+'@'+GITSERVER, 'create', name]).wait():
+    if subprocess.Popen(['ssh', GITLOGIN + GITSERVER, 'create', name]).wait():
         sys.exit(1)
     initpackage(name, options)
 
@@ -166,8 +158,6 @@ def list_packages(options):
 common_options = argparse.ArgumentParser(add_help=False)
 common_options.add_argument('-d', '--packagesdir', help='local directory with git repositories',
     default=os.path.expanduser('~/PLD_clone/packages'))
-common_options.add_argument('-u', '--user',
-        help='the user name to register for pushes for new repositories')
 
 common_fetchoptions = argparse.ArgumentParser(add_help=False, parents=[common_options])
 common_fetchoptions.add_argument('-j', '--jobs', help='number of threads to use', default=4, type=int)

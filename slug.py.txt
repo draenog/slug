@@ -9,14 +9,12 @@ slug.py - tool to interact with PLD git repositories
 SYNOPSIS
 --------
 [verse]
-'slug.py clone' [-d dir] [-j <threads>] [-r repository]
-                 [-u user] pattern...
-'slug.py fetch' [-d dir] [-j <threads>] [-r repository]
-                 [-u user] pattern...
-'slug.py init' [-d dir] [-j <threads>] [-u user] package...
+'slug.py clone' [-d dir] [-j <threads>] [-r repository] pattern...
+'slug.py fetch' [-d dir] [-j <threads>] [-r repository] pattern...
+'slug.py init' [-d dir] [-j <threads>] package...
 'slug.py list' [-b pattern...] [-r repository] pattern...
 'slug.py update' [-d dir] [--depth depth] [-j <threads>] [-n|-nn] [-P]
-                 [-r repository] [-u user] pattern...
+                 [-r repository] pattern...
 
 
 DESCRIPTION
@@ -40,11 +38,6 @@ OPTIONS
 --remoterefs <repository>::
     The location of special git repository necessary for slug.py operations. By
     default $HOME/PLD_clone/Refs.git is assumed.
-
--u <user>::
---user <user>::
-    the user name to register for pushes in new repositories. If not present value
-    derived from user.email entry in $HOME/.gitconfig is used.
 
 COMMANDS
 --------
@@ -92,8 +85,7 @@ CONFIGURATION FILE
 ------------------
 
 The behaviour of slug.py can also be configured with file $HOME/.gitconfig. The
-value of all long options, with the exception of '--user option',  can be
-specified in section [PLD] in this file.
+value of all long options, can be specified in section [PLD] in this file.
 
 AUTHOR
 ------
