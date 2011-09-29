@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='git-core-slug',
-      version='0.6',
+      version='0.7',
       description='Scripts to interact with PLD git repos',
       author='Kacper Kornet',
       author_email='draenog@pld-linux.org',
