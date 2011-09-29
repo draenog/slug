@@ -58,7 +58,7 @@ def readconfig(path):
             optionslist[option] = config.get('PLD', option)
     if config.has_option('PLD','branch'):
         optionslist['branch'] = config.get('PLD', 'branch').split()
-    for option in ('j'):
+    for option in ('jobs'):
         if config.has_option('PLD',option):
             optionslist[option] = config.getint('PLD', option)
     return optionslist
