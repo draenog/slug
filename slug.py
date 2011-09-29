@@ -61,6 +61,10 @@ def readconfig(path):
     for option in ('jobs'):
         if config.has_option('PLD',option):
             optionslist[option] = config.getint('PLD', option)
+
+    for pathopt in ('packagesdir', 'remoterefs'):
+        if pathopt in optionslist:
+            optionslist[pathopt] = os.path.expanduser(optionslist[pathopt])
     return optionslist
 
 def initpackage(name, options):
