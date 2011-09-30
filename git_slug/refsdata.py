@@ -25,7 +25,8 @@ class RemoteRefsData:
     def put(self, repo, data):
         for line in data:
             (sha1_old, sha1, ref) = line.split()
-            self.heads[repo][ref] = sha1
+            if(ref.startswith('refs/heads/')):
+                self.heads[repo][ref] = sha1
 
     def dump(self, stream):
         for repo in sorted(self.heads):
