@@ -11,6 +11,7 @@ from git_slug.refsdata import RemoteRefsData
 from git_slug.gitrepo import GitRepo
 
 
+PIDFILE = os.path.expanduser('~/watch.pid')
 REFREPO_WDIR = os.path.expanduser('~/Refs')
 REFREPO_GDIR = os.path.join(os.path.expanduser('~/repositories'), REFREPO+'.git')
 
@@ -50,5 +51,5 @@ wdd = wm.add_watch(WATCHDIR, mask, rec=False)
 for filename in os.listdir(WATCHDIR):
     process_file(os.path.join(WATCHDIR,filename))
 
-notifier.loop(daemonize=True, pid_file=os.path.expanduser('~/watch.pid'),
+notifier.loop(daemonize=True, pid_file=os.path.expanduser(PIDFILE),
             stdout=os.path.expanduser('~/watch.stdout'))
