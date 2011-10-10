@@ -48,7 +48,7 @@ if not os.path.isdir(WATCHDIR):
 notifier = pyinotify.Notifier(wm, EventHandler())
 wdd = wm.add_watch(WATCHDIR, mask, rec=False)
 
-for filename in os.listdir(WATCHDIR):
+for filename in sorted(os.listdir(WATCHDIR), key=lambda f: os.stat(os.path.join(WATCHDIR, f)).st_mtime):
     process_file(os.path.join(WATCHDIR,filename))
 
 notifier.loop(daemonize=True, pid_file=os.path.expanduser(PIDFILE),
