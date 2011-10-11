@@ -133,11 +133,12 @@ def fetch_packages(options):
         except RemoteRefsError as e:
             print('Problem with file {} in repository {}'.format(*e), file=sys.stderr)
             sys.exit(1)
-        for fulldir in glob.iglob(os.path.join(options.packagesdir,options.repopattern)):
-            dir = os.path.basename(fulldir)
-            if len(refs.heads[dir]) == 0 and os.path.isdir(os.path.join(fulldir, '.git')):
-                print('Removing', fulldir)
-                shutil.rmtree(fulldir)
+        for pattern in options.repopattern:
+            for fulldir in glob.iglob(os.path.join(options.packagesdir,pattern)):
+                dir = os.path.basename(fulldir)
+                if len(refs.heads[dir]) == 0 and os.path.isdir(os.path.join(fulldir, '.git')):
+                    print('Removing', fulldir)
+                    shutil.rmtree(fulldir)
     return updated_repos
 
 def clone_packages(options):
