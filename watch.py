@@ -5,7 +5,7 @@ import os
 import pyinotify
 import shutil
 
-from git_slug.gitconst import REFREPO, REFFILE
+from git_slug.gitconst import EMPTYSHA1, REFREPO, REFFILE
 from git_slug.serverconst import WATCHDIR
 from git_slug.refsdata import RemoteRefsData
 from git_slug.gitrepo import GitRepo
@@ -45,7 +45,8 @@ def process_file(pathname):
             if (repo, ref) == oldtuple:
                 continue
             oldtuple = (repo, ref)
-            print(sha1, ref, repo, file=headfile_new)
+            if sha1 != EMPTYSHA1:
+                print(sha1, ref, repo, file=headfile_new)
     shutil.copyfile(os.path.join(REFREPO_WDIR, REFFILE_NEW), os.path.join(REFREPO_WDIR, REFFILE))
 
     headrepo = GitRepo(REFREPO_WDIR, REFREPO_GDIR)
