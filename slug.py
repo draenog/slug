@@ -119,6 +119,7 @@ def fetch_packages(options):
             if gitrepo.check_remote(ref) != refs.heads[dir][ref]:
                 ref2fetch.append('+{}:{}/{}'.format(ref, REMOTEREFS, ref[len('refs/heads/'):]))
         if ref2fetch:
+            ref2fetch.append('refs/notes/commits:refs/notes/commits')
             fetch_queue.put((gitrepo, ref2fetch))
             updated_repos.append(gitrepo)
 
