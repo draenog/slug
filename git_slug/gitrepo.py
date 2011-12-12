@@ -66,6 +66,8 @@ class GitRepo:
         self.commandio(['remote', 'add', remotename, remotepull])
         if remotepush is not None:
             self.commandio(['remote', 'set-url', '--push', remotename, remotepush])
+        self.commandio(['config', '--local', '--add', 'remote.{}.fetch'.format(remotename),
+            'refs/notes/*:refs/notes/*'])
 
     def check_remote(self, ref, remote=REMOTE_NAME):
         ref = ref.replace(REFFILE, os.path.join('remotes', remote))
