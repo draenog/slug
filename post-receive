@@ -14,10 +14,15 @@ from git_slug.gitrepo import GitRepo
 
 data = sys.stdin.readlines()
 
-mail = subprocess.Popen(["./hooks/mailnotification"], stdin=subprocess.PIPE)
-for line in data:
-    mail.stdin.write(line.encode('utf-8'))
-mail.communicate()
+if (os.path.isdir('hooks/post-receive.d')):
+    for hook in os.listdir('hooks/post-receive.d'):
+        hook = os.path.join('hooks/post-receive.d', hook)
+        if (hook.endswith(('~','.bak','.rpmsave','.rpmnew')) or not os.access(hook, os.X_OK)):
+            continue
+        hook_process = subprocess.Popen([hook], stdin=subprocess.PIPE)
+        for line in data:
+            hook_process.stdin.write(line.encode('utf-8'))
+        hook_process.communicate()
 
 gitrepo = os.environ.get('GL_REPO')
 if gitrepo.startswith('packages/'):
