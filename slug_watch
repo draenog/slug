@@ -41,13 +41,15 @@ def process_file(pathname):
         committer = newfile.readline().strip()
         oldtuple = None
         refrepo = GitRepo(git_dir=REFREPO_GDIR)
-        headfile = refrepo.showfile(REFFILE, 'master').stdout
+        process = refrepo.showfile(REFFILE, 'master')
+        headfile = process.stdout
         for (repo, ref, number, sha1) in heapq.merge(sorted(processnewfile(newfile)), convertstream(headfile)):
             if (repo, ref) == oldtuple:
                 continue
             oldtuple = (repo, ref)
             if sha1 != EMPTYSHA1:
                 print(sha1, ref, repo, file=headfile_new)
+        process.wait()
 
     headrepo = GitRepo(REFREPO_WDIR, REFREPO_GDIR)
     headrepo.commitfile(REFFILE, 'Changes by {}'.format(committer))
