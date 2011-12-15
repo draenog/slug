@@ -1,6 +1,8 @@
 #!/usr/bin/python3 -u
 
 import fcntl
+import glob
+import imp
 import os
 import tempfile
 import sys
@@ -23,6 +25,10 @@ if (os.path.isdir('hooks/post-receive.d')):
         for line in data:
             hook_process.stdin.write(line.encode('utf-8'))
         hook_process.communicate()
+
+for pluginfile in glob.glob('hooks/post-receive.python.d/*.py'):
+    plugin = imp.load_source(os.path.basename(pluginfile), pluginfile)
+    plugin.run(data)
 
 gitrepo = os.environ.get('GL_REPO')
 if gitrepo.startswith('packages/'):
