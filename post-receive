@@ -8,11 +8,6 @@ import tempfile
 import sys
 import subprocess
 
-from git_slug.refsdata import RemoteRefsData
-from git_slug.gitconst import REFREPO, REFFILE
-from git_slug.serverconst import WATCHDIR
-from git_slug.gitrepo import GitRepo
-
 
 data = sys.stdin.readlines()
 
@@ -29,15 +24,3 @@ if (os.path.isdir('hooks/post-receive.d')):
 for pluginfile in glob.glob('hooks/post-receive.python.d/*.py'):
     plugin = imp.load_source(os.path.basename(pluginfile), pluginfile)
     plugin.run(data)
-
-gitrepo = os.environ.get('GL_REPO')
-if gitrepo.startswith('packages/'):
-    gitrepo = gitrepo[len('packages/'):]
-else:
-    sys.exit()
-
-(tfile, name) = tempfile.mkstemp(prefix=gitrepo+'.', dir=WATCHDIR)
-os.write(tfile,(os.getenv('GL_USER')+'\n').encode('utf-8'))
-os.write(tfile,(gitrepo+'\n').encode('utf-8'))
-os.write(tfile,''.join(data).encode('utf-8'))
-os.close(tfile)
