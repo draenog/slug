@@ -1,0 +1,29 @@
+#!/bin/sh
+
+. $(dirname $0)/adc.common-functions
+
+[ -z "$1" ] && die 'Error: Need a repo name'
+
+get_rights_and_owner gitolite-admin
+[ -z "$perm_write" ] && die "Error: You do not have permission to remove repositories"
+
+ATTIC=$HOME/Attic
+ATTIC_SUFFIX=`date +%Y-%m-%d_%H:%M:%S`
+WATCHDIR=$HOME/watchdir
+EMPTYSHA1='0000000000000000000000000000000000000000'
+
+repo=$1
+repofull=$GL_REPO_BASE_ABS/packages/$repo.git
+
+[ -d $repofull ] || die "Error: repository $repofull doesn't exist"
+newdir=$ATTIC/$repo
+mkdir -p $newdir || die "Error: cannot create attic directory in $ATTIC"
+[ -d $newdir/%$ATTIC_SUFFIX ] && die "Error: Directory with this timestap already exists"
+echo "Repository removed by $GL_USER" > $repofull/.gitolite.down
+
+( echo $GL_USER
+  echo $1
+  GIT_DIR=$repofull git for-each-ref  --format="%(objectname) $EMPTYSHA1 %(refname)" refs/heads/\*
+  ) > $WATCHDIR/`mktemp $1.XXXXXX`
+
+mv $repofull $newdir/$ATTIC_SUFFIX
