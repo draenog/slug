@@ -1,0 +1,27 @@
+#!/bin/sh
+
+. $(dirname $0)/adc.common-functions
+
+[ -z "$1" ] && die 'Error: Need a repo name'
+
+get_rights_and_owner gitolite-admin
+[ -z "$perm_write" ] && die "Error: You do not have permission to remove repositories"
+
+ATTIC=$HOME/Attic
+GL_REPO_BASE_ABS=$HOME/repositories
+WATCHDIR=$HOME/watchdir
+EMPTYSHA1='0000000000000000000000000000000000000000'
+
+repo=$GL_REPO_BASE_ABS/packages/$1.git
+
+[ -d $repo ] || die "Error: repository $repo does'nt exist"
+[ -d $ATTIC ] || die "Error: Directory $ATTIC does not exist"
+[ -e $ATTIC/$repo ] && die "Error: Directory $ATTIC/abra already exist"
+echo "Repository removed by $GL_USER" > $repo/.gitolite.down
+
+( echo $GL_USER
+  echo $1
+  GIT_DIR=$repo git for-each-ref  --format="%(objectname) $EMPTYSHA1 %(refname)" refs/heads/\*
+  ) > $WATCHDIR/`mktemp $1.XXXXXX`
+
+mv $repo $ATTIC
