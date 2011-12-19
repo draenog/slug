@@ -38,8 +38,10 @@ class GitRepo:
         return self.commandexc(clist)
 
     def commitfile(self, path, message):
-        clist = ['commit', '-m', message, path]
-        self.commandio(clist)
+        clist = ['add', path]
+        self.commandexc(clist)
+        clist = ['commit', '-m', message]
+        self.commandexc(clist)
 
     def configvalue(self, option):
         clist = ['config', '-z', option]
