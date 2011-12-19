@@ -10,5 +10,5 @@ setup(name='git-core-slug',
       url='https://github.com/draenog/slug',
       classifiers=['Programming Language :: Python :: 3'],
       packages=['git_slug'],
-      scripts=['slug.py']
+      scripts=['slug.py', 'slug_watch']
      )
