@@ -60,9 +60,10 @@ class EventHandler(pyinotify.ProcessEvent):
         process_file(event.pathname)
 
 def run():
-    if not os.path.isdir(WATCHDIR):
-        print('Creating {}'.format(WATCHDIR))
-        os.mkdir(WATCHDIR)
+    for directory in (WATCHDIR, REFREPO_WDIR):
+        if not os.path.isdir(directory):
+            print('Creating {}'.format(directory))
+            os.mkdir(directory)
     notifier = pyinotify.Notifier(wm, EventHandler())
     wdd = wm.add_watch(WATCHDIR, mask, rec=False)
 
