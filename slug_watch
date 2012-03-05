@@ -3,6 +3,7 @@
 import fcntl
 import heapq
 import os
+import pwd
 import pyinotify
 
 from git_slug.gitconst import EMPTYSHA1, REFREPO, REFFILE
@@ -10,10 +11,10 @@ from git_slug.serverconst import WATCHDIR
 from git_slug.refsdata import RemoteRefsData
 from git_slug.gitrepo import GitRepo
 
-PIDFILE = os.path.expanduser('~/watch.pid')
+PIDFILE = 'watch.pid'
 REFFILE_NEW = REFFILE + '.new'
-REFREPO_WDIR = os.path.expanduser('~/Refs')
-REFREPO_GDIR = os.path.join(os.path.expanduser('~/repositories'), REFREPO+'.git')
+REFREPO_WDIR = 'Refs'
+REFREPO_GDIR = os.path.join('repositories', REFREPO+'.git')
 
 WATCHDIR=WATCHDIR
 
@@ -71,7 +72,8 @@ def run():
         process_file(os.path.join(WATCHDIR,filename))
     notifier.loop()
 
-with open(os.path.expanduser(PIDFILE), "a") as f:
+os.chdir(pwd.getpwuid(os.getuid()).pw_dir)
+with open(PIDFILE, "a") as f:
     try: 
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
         run()

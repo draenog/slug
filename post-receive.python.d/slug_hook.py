@@ -5,6 +5,8 @@ from git_slug.serverconst import WATCHDIR
 
 
 def run(data):
+    global WATCHDIR
+    WATCHDIR = os.path.join(os.path.expanduser('~'), WATCHDIR)
     gitrepo = os.environ.get('GL_REPO')
     if gitrepo.startswith('packages/'):
         gitrepo = gitrepo[len('packages/'):]
