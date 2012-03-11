@@ -12,7 +12,7 @@ from git_slug.serverconst import WATCHDIR
 from git_slug.refsdata import RemoteRefsData
 from git_slug.gitrepo import GitRepo
 
-PIDFILE = 'watch.pid'
+LOCKFILE = 'slug_watch.lock'
 REFFILE_NEW = REFFILE + '.new'
 REFREPO_WDIR = 'Refs'
 REFREPO_GDIR = os.path.join('repositories', REFREPO+'.git')
@@ -80,7 +80,7 @@ parser.add_argument('-u', '--user')
 options = parser.parse_args()
 
 os.chdir(pwd.getpwuid(os.getuid()).pw_dir)
-with open(PIDFILE, "a") as f:
+with open(LOCKFILE, "a") as f:
     try: 
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
         run()
