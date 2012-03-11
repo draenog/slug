@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+from argparse import ArgumentParser
 import fcntl
 import heapq
 import os
@@ -71,6 +72,12 @@ def run():
     for filename in sorted(os.listdir(WATCHDIR), key=lambda f: os.stat(os.path.join(WATCHDIR, f)).st_mtime):
         process_file(os.path.join(WATCHDIR,filename))
     notifier.loop()
+
+
+parser = ArgumentParser(description='daemon to register changes in PLD repositories')
+parser.add_argument('-d', '--daemon', nargs='?', choices=['start', 'stop'], default=None, const='start')
+parser.add_argument('-u', '--user')
+options = parser.parse_args()
 
 os.chdir(pwd.getpwuid(os.getuid()).pw_dir)
 with open(PIDFILE, "a") as f:
