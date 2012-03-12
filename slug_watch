@@ -7,6 +7,8 @@ import os
 import pwd
 import pyinotify
 
+from contextlib import contextmanager
+
 from git_slug.gitconst import EMPTYSHA1, REFREPO, REFFILE
 from git_slug.serverconst import WATCHDIR
 from git_slug.refsdata import RemoteRefsData
@@ -21,6 +23,21 @@ WATCHDIR=WATCHDIR
 
 wm = pyinotify.WatchManager()  # Watch Manager
 mask = pyinotify.IN_CLOSE_WRITE # watched events
+
+@contextmanager
+def lock(path=LOCKFILE):
+    f = open(path, 'a')
+    try:
+        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except IOError:
+        raise SystemExit('Already running: file {} locked'.format(path))
+    else:
+        try:
+            yield
+        finally:
+            f.close()
+            os.remove(path)
+
 
 def convertstream(stream):
     for line in stream:
@@ -80,9 +97,5 @@ parser.add_argument('-u', '--user')
 options = parser.parse_args()
 
 os.chdir(pwd.getpwuid(os.getuid()).pw_dir)
-with open(LOCKFILE, "a") as f:
-    try: 
-        fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        run()
-    except IOError:
-        pass
+with lock(LOCKFILE):
+    run()
