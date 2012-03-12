@@ -21,9 +21,6 @@ REFREPO_GDIR = os.path.join('repositories', REFREPO+'.git')
 
 WATCHDIR=WATCHDIR
 
-wm = pyinotify.WatchManager()  # Watch Manager
-mask = pyinotify.IN_CLOSE_WRITE # watched events
-
 @contextmanager
 def lock(path=LOCKFILE):
     f = open(path, 'a')
@@ -83,6 +80,8 @@ def run():
         if not os.path.isdir(directory):
             print('Creating {}'.format(directory))
             os.mkdir(directory)
+    wm = pyinotify.WatchManager()  # Watch Manager
+    mask = pyinotify.IN_CLOSE_WRITE # watched events
     notifier = pyinotify.Notifier(wm, EventHandler())
     wdd = wm.add_watch(WATCHDIR, mask, rec=False)
 
