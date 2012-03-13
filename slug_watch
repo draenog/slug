@@ -9,6 +9,7 @@ import pyinotify
 
 from contextlib import contextmanager
 
+import Daemon.daemon
 from git_slug.gitconst import EMPTYSHA1, REFREPO, REFFILE
 from git_slug.serverconst import WATCHDIR
 from git_slug.refsdata import RemoteRefsData
@@ -75,7 +76,13 @@ class EventHandler(pyinotify.ProcessEvent):
     def process_IN_CLOSE_WRITE(self, event):
         process_file(event.pathname)
 
-def runwatch():
+def runwatch(user=None):
+    if options.user is not None:
+        uid = pwd.getpwnam(options.user).pw_uid
+        gid = pwd.getpwnam(options.user).pw_gid
+        os.setgid(gid)
+        os.setuid(uid)
+
     os.chdir(pwd.getpwuid(os.getuid()).pw_dir)
     for directory in (WATCHDIR, REFREPO_WDIR):
         if not os.path.isdir(directory):
@@ -97,4 +104,15 @@ parser.add_argument('-d', '--daemon', nargs='?', choices=['start', 'stop'], defa
 parser.add_argument('-u', '--user')
 options = parser.parse_args()
 
-runwatch()
+class SlugWatch(Daemon.daemon.daemon):
+    def __init__(self, user, pidfile):
+        super().__init__(pidfile)
+        self.user = user
+    def run(self):
+        runwatch(self.user)
+
+if options.daemon is not None:
+    daemon = SlugWatch(options.user, "/var/run/slug_watch.pid")
+    getattr(daemon, options.daemon)()
+else:
+    runwatch(options.user)

@@ -9,7 +9,7 @@ setup(name='git-core-slug',
       author_email='draenog@pld-linux.org',
       url='https://github.com/draenog/slug',
       classifiers=['Programming Language :: Python :: 3'],
-      packages=['git_slug'],
+      packages=['git_slug', 'Daemon'],
       data_files=[('/home/services/gitolite/adc/bin', ['trash'])],
       scripts=['slug.py', 'slug_watch']
      )
