@@ -6,6 +6,7 @@ import heapq
 import os
 import pwd
 import pyinotify
+import signal
 
 from contextlib import contextmanager
 
@@ -22,8 +23,12 @@ REFREPO_GDIR = os.path.join('repositories', REFREPO+'.git')
 
 WATCHDIR=WATCHDIR
 
+def sigtermhandler(no, stack):
+    raise SystemExit
+
 @contextmanager
 def lock(path=LOCKFILE):
+    signal.signal(signal.SIGTERM, sigtermhandler)
     f = open(path, 'a')
     try:
         fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
