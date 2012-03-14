@@ -93,6 +93,8 @@ def runwatch(user=None):
         if not os.path.isdir(directory):
             print('Creating {}'.format(directory))
             os.mkdir(directory)
+    if not os.path.isdir(REFREPO_GDIR):
+        GitRepo(git_dir=REFREPO_GDIR).init_gitdir()
 
     with lock(LOCKFILE):
         wm = pyinotify.WatchManager()  # Watch Manager
