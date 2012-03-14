@@ -61,7 +61,7 @@ class GitRepo:
         clist += [ remotename ] + fetchlist
         return self.commandexc(clist)
 
-    def init(self, remotepull, remotepush = None, remotename=REMOTE_NAME):
+    def init_gitdir(self):
         clist = ['git', 'init']
         if os.path.dirname(self.gdir) == self.wtree:
             clist.append(self.wtree)
@@ -69,6 +69,9 @@ class GitRepo:
             clist.extend(['--bare', self.gdir])
         if subprocess.call(clist):
             raise GitRepoError(self.gdir)
+
+    def init(self, remotepull, remotepush = None, remotename=REMOTE_NAME):
+        self.init_gitdir()
         self.commandio(['remote', 'add', remotename, remotepull])
         if remotepush is not None:
             self.commandio(['remote', 'set-url', '--push', remotename, remotepush])
