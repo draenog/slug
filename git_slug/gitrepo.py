@@ -59,7 +59,7 @@ class GitRepo:
 
     def init(self, remotepull, remotepush = None, remotename=REMOTE_NAME):
         clist = ['git', 'init']
-        if self.wtree is not None:
+        if os.path.dirname(self.gdir) == self.wtree:
             clist.append(self.wtree)
         else:
             clist.extend(['--bare', self.gdir])
