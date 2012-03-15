@@ -40,8 +40,12 @@ class GitRepo:
     def commitfile(self, path, message):
         clist = ['add', path]
         self.commandexc(clist)
-        clist = ['commit', '-m', message]
-        self.commandexc(clist)
+        clist = ['diff', '--cached', '--exit-code']
+        try:
+            self.commandexc(clist)
+        except GitRepoError:
+            clist = ['commit', '-m', message]
+            self.commandexc(clist)
 
     def configvalue(self, option):
         clist = ['config', '-z', option]
