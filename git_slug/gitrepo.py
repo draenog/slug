@@ -40,6 +40,11 @@ class GitRepo:
     def commitfile(self, path, message):
         clist = ['add', path]
         self.commandexc(clist)
+        clist = ['diff', '--cached', '--exit-code']
+        try:
+            self.commandexc(clist)
+        except GitRepoError:
+            return
         clist = ['commit', '-m', message]
         self.commandexc(clist)
 
