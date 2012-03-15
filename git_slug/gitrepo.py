@@ -44,9 +44,8 @@ class GitRepo:
         try:
             self.commandexc(clist)
         except GitRepoError:
-            return
-        clist = ['commit', '-m', message]
-        self.commandexc(clist)
+            clist = ['commit', '-m', message]
+            self.commandexc(clist)
 
     def configvalue(self, option):
         clist = ['config', '-z', option]
