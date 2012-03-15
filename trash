@@ -16,7 +16,7 @@ repo=$GL_REPO_BASE_ABS/packages/$1.git
 
 [ -d $repo ] || die "Error: repository $repo does'nt exist"
 [ -d $ATTIC ] || die "Error: Directory $ATTIC does not exist"
-[ -e $ATTIC/`basename $repo` ] && die "Error: Directory $ATTIC/abra already exist"
+[ -e $ATTIC/`basename $repo` ] && die "Error: Directory $ATTIC/repo already exist"
 echo "Repository removed by $GL_USER" > $repo/.gitolite.down
 
 ( echo $GL_USER
