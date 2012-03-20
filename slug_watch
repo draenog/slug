@@ -13,7 +13,6 @@ from contextlib import contextmanager
 import Daemon.daemon
 from git_slug.gitconst import EMPTYSHA1, REFREPO, REFFILE
 from git_slug.serverconst import WATCHDIR
-from git_slug.refsdata import RemoteRefsData
 from git_slug.gitrepo import GitRepo
 
 LOCKFILE = 'slug_watch.lock'
