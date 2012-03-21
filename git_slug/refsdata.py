@@ -14,7 +14,7 @@ class RemoteRefsData:
     def __init__(self, stream, pattern, dirpattern=('*',)):
         self.heads = collections.defaultdict(lambda: collections.defaultdict(lambda: EMPTYSHA1))
         pats = re.compile('|'.join(fnmatch.translate(os.path.join('refs/heads', p)) for p in pattern))
-        dirpat=re.compile('|'.join(fnmatch.translate(p) for p in dirpattern))
+        dirpat = re.compile('|'.join(fnmatch.translate(p) for p in dirpattern))
         for line in stream.readlines():
             if isinstance(line, bytes):
                 line = line.decode("utf-8")
@@ -30,9 +30,9 @@ class RemoteRefsData:
 
     def dump(self, stream):
         for repo in sorted(self.heads):
-                for ref in sorted(self.heads[repo]):
-                    if self.heads[repo][ref] != EMPTYSHA1:
-                        stream.write('{} {} {}\n'.format(self.heads[repo][ref], ref, repo))
+            for ref in sorted(self.heads[repo]):
+                if self.heads[repo][ref] != EMPTYSHA1:
+                    stream.write('{} {} {}\n'.format(self.heads[repo][ref], ref, repo))
 
 class GitRemoteRefsData(RemoteRefsData):
     def __init__(self, path, pattern, dirpattern=('*')):

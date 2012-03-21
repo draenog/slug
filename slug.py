@@ -51,15 +51,15 @@ def readconfig(path):
     config.read(path)
     optionslist = {}
     for option in ('newpkgs', 'prune'):
-        if config.has_option('PLD',option):
+        if config.has_option('PLD', option):
             optionslist[option] = config.getboolean('PLD', option)
     for option in ('depth', 'repopattern', 'packagesdir', 'remoterefs'):
-        if config.has_option('PLD',option):
+        if config.has_option('PLD', option):
             optionslist[option] = config.get('PLD', option)
     if config.has_option('PLD','branch'):
         optionslist['branch'] = config.get('PLD', 'branch').split()
     for option in ('jobs'):
-        if config.has_option('PLD',option):
+        if config.has_option('PLD', option):
             optionslist[option] = config.getint('PLD', option)
 
     for pathopt in ('packagesdir', 'remoterefs'):
@@ -69,8 +69,8 @@ def readconfig(path):
 
 def initpackage(name, options):
     repo = GitRepo(os.path.join(options.packagesdir, name))
-    remotepush = os.path.join(GIT_REPO_PUSH ,name)
-    repo.init(os.path.join(GIT_REPO,name), remotepush)
+    remotepush = os.path.join(GIT_REPO_PUSH, name)
+    repo.init(os.path.join(GIT_REPO, name), remotepush)
     return repo
 
 def createpackage(name, options):
@@ -94,7 +94,7 @@ def fetch_packages(options):
     try:
         refs = GitRemoteRefsData(options.remoterefs, options.branch, options.repopattern)
     except GitRepoError as e:
-        print('Problem with repository {}: {}'.format(options.remoterefs,e), file=sys.stderr)
+        print('Problem with repository {}: {}'.format(options.remoterefs, e), file=sys.stderr)
         sys.exit(1)
     except RemoteRefsError as e:
         print('Problem with file {} in repository {}'.format(*e), file=sys.stderr)
@@ -102,7 +102,7 @@ def fetch_packages(options):
 
 
     print('Read remotes data')
-    updated_repos=[]
+    updated_repos = []
     for dir in sorted(refs.heads):
         gitdir = os.path.join(options.packagesdir, dir, '.git')
         if not os.path.isdir(gitdir):
@@ -129,13 +129,13 @@ def fetch_packages(options):
         try:
             refs = GitRemoteRefsData(options.remoterefs, '*')
         except GitRepoError as e:
-            print('Problem with repository {}: {}'.format(options.remoterefs,e), file=sys.stderr)
+            print('Problem with repository {}: {}'.format(options.remoterefs, e), file=sys.stderr)
             sys.exit(1)
         except RemoteRefsError as e:
             print('Problem with file {} in repository {}'.format(*e), file=sys.stderr)
             sys.exit(1)
         for pattern in options.repopattern:
-            for fulldir in glob.iglob(os.path.join(options.packagesdir,pattern)):
+            for fulldir in glob.iglob(os.path.join(options.packagesdir, pattern)):
                 dir = os.path.basename(fulldir)
                 if len(refs.heads[dir]) == 0 and os.path.isdir(os.path.join(fulldir, '.git')):
                     print('Removing', fulldir)
@@ -153,7 +153,7 @@ def list_packages(options):
     try:
         refs = GitRemoteRefsData(options.remoterefs, options.branch, options.repopattern)
     except GitRepoError as e:
-        print('Problem with repository {}: {}'.format(options.remoterefs,e), file=sys.stderr)
+        print('Problem with repository {}: {}'.format(options.remoterefs, e), file=sys.stderr)
         sys.exit(1)
     except RemoteRefsError as e:
         print('Problem with file {} in repository {}'.format(*e), file=sys.stderr)
