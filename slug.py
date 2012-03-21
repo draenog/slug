@@ -30,10 +30,10 @@ class DelAppend(argparse._AppendAction):
         setattr(namespace, self.dest, item)
 
 class ThreadFetch(threading.Thread):
-    def __init__(self, queue, dir, depth=0):
+    def __init__(self, queue, pkgdir, depth=0):
         threading.Thread.__init__(self)
         self.queue = queue
-        self.packagesdir = dir
+        self.packagesdir = pkgdir
         self.depth = depth
 
     def run(self):
@@ -103,20 +103,20 @@ def fetch_packages(options):
 
     print('Read remotes data')
     updated_repos = []
-    for dir in sorted(refs.heads):
-        gitdir = os.path.join(options.packagesdir, dir, '.git')
+    for pkgdir in sorted(refs.heads):
+        gitdir = os.path.join(options.packagesdir, pkgdir, '.git')
         if not os.path.isdir(gitdir):
             if options.newpkgs:
-                gitrepo = initpackage(dir, options)
+                gitrepo = initpackage(pkgdir, options)
             else:
                 continue
         elif options.omitexisting:
             continue
         else:
-            gitrepo = GitRepo(os.path.join(options.packagesdir, dir))
+            gitrepo = GitRepo(os.path.join(options.packagesdir, pkgdir))
         ref2fetch = []
-        for ref in refs.heads[dir]:
-            if gitrepo.check_remote(ref) != refs.heads[dir][ref]:
+        for ref in refs.heads[pkgdir]:
+            if gitrepo.check_remote(ref) != refs.heads[pkgdir][ref]:
                 ref2fetch.append('+{}:{}/{}'.format(ref, REMOTEREFS, ref[len('refs/heads/'):]))
         if ref2fetch:
             ref2fetch.append('refs/notes/*:refs/notes/*')
@@ -136,8 +136,8 @@ def fetch_packages(options):
             sys.exit(1)
         for pattern in options.repopattern:
             for fulldir in glob.iglob(os.path.join(options.packagesdir, pattern)):
-                dir = os.path.basename(fulldir)
-                if len(refs.heads[dir]) == 0 and os.path.isdir(os.path.join(fulldir, '.git')):
+                pkgdir = os.path.basename(fulldir)
+                if len(refs.heads[pkgdir]) == 0 and os.path.isdir(os.path.join(fulldir, '.git')):
                     print('Removing', fulldir)
                     shutil.rmtree(fulldir)
     return updated_repos
