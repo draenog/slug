@@ -1,4 +1,4 @@
-from .gitconst import *
+from .gitconst import EMPTYSHA1, REMOTE_NAME, REFFILE
 
 import os
 from subprocess import PIPE
