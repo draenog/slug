@@ -20,7 +20,6 @@ REFFILE_NEW = REFFILE + '.new'
 REFREPO_WDIR = 'Refs'
 REFREPO_GDIR = os.path.join('repositories', REFREPO+'.git')
 
-WATCHDIR=WATCHDIR
 
 def sigtermhandler(no, stack):
     raise SystemExit
