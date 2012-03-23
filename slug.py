@@ -97,7 +97,7 @@ def fetch_packages(options):
         print('Problem with repository {}: {}'.format(options.remoterefs, e), file=sys.stderr)
         sys.exit(1)
     except RemoteRefsError as e:
-        print('Problem with file {} in repository {}'.format(*e), file=sys.stderr)
+        print('Problem with file {} in repository {}'.format(*e.args), file=sys.stderr)
         sys.exit(1)
 
 
@@ -132,7 +132,7 @@ def fetch_packages(options):
             print('Problem with repository {}: {}'.format(options.remoterefs, e), file=sys.stderr)
             sys.exit(1)
         except RemoteRefsError as e:
-            print('Problem with file {} in repository {}'.format(*e), file=sys.stderr)
+            print('Problem with file {} in repository {}'.format(*e.args), file=sys.stderr)
             sys.exit(1)
         for pattern in options.repopattern:
             for fulldir in glob.iglob(os.path.join(options.packagesdir, pattern)):
@@ -156,7 +156,7 @@ def list_packages(options):
         print('Problem with repository {}: {}'.format(options.remoterefs, e), file=sys.stderr)
         sys.exit(1)
     except RemoteRefsError as e:
-        print('Problem with file {} in repository {}'.format(*e), file=sys.stderr)
+        print('Problem with file {} in repository {}'.format(*e.args), file=sys.stderr)
         sys.exit(1)
     for package in sorted(refs.heads):
         print(package)
