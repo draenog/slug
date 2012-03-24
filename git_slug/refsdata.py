@@ -3,6 +3,7 @@ import collections
 import fnmatch
 import os
 import re
+import tarfile
 from .gitconst import EMPTYSHA1, REFFILE, REFREPO, GITSERVER
 from .gitrepo import GitRepo
 
@@ -44,3 +45,18 @@ class GitRemoteRefsData(RemoteRefsData):
         RemoteRefsData.__init__(self, showfile.stdout, pattern, dirpattern)
         if showfile.wait():
             raise RemoteRefsError(REFFILE, path)
+
+class GitArchiveRefsData(RemoteRefsData):
+    def __init__(self, path, pattern, dirpattern=('*')):
+        fullrefrepo = 'git://{}/{}'.format(GITSERVER, REFREPO)
+        archcmd = GitRepo(None, None).command(['archive', '--format=tgz', '--remote={}'.format(fullrefrepo), 'HEAD'])
+        try:
+            tar = tarfile.open(fileobj=archcmd.stdout, mode='r|*')
+        except tarfile.TarError:
+            raise RemoteRefsError(REFFILE, fullrefrepo)
+        member = tar.next()
+        if member.name != REFFILE:
+            raise RemoteRefsError(REFFILE, fullrefrepo)
+        RemoteRefsData.__init__(self, tar.extractfile(member), pattern, dirpattern)
+        if archcmd.wait():
+            raise RemoteRefsError(REFFILE, fullrefrepo)
