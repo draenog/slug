@@ -16,7 +16,7 @@ import configparser
 
 from git_slug.gitconst import GITLOGIN, GITSERVER, GIT_REPO, GIT_REPO_PUSH, REMOTEREFS
 from git_slug.gitrepo import GitRepo, GitRepoError
-from git_slug.refsdata import GitRemoteRefsData, RemoteRefsError
+from git_slug.refsdata import GitArchiveRefsData, RemoteRefsError
 
 class DelAppend(argparse._AppendAction):
     def __call__(self, parser, namespace, values, option_string=None):
@@ -92,10 +92,7 @@ def fetch_packages(options):
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     try:
-        refs = GitRemoteRefsData(options.remoterefs, options.branch, options.repopattern)
-    except GitRepoError as e:
-        print('Problem with repository {}: {}'.format(options.remoterefs, e), file=sys.stderr)
-        sys.exit(1)
+        refs = GitArchiveRefsData(options.remoterefs, ptions.branch, options.repopattern)
     except RemoteRefsError as e:
         print('Problem with file {} in repository {}'.format(*e.args), file=sys.stderr)
         sys.exit(1)
@@ -127,10 +124,7 @@ def fetch_packages(options):
 
     if options.prune:
         try:
-            refs = GitRemoteRefsData(options.remoterefs, '*')
-        except GitRepoError as e:
-            print('Problem with repository {}: {}'.format(options.remoterefs, e), file=sys.stderr)
-            sys.exit(1)
+            refs = GitArchiveRefsData(options.remoterefs, '*')
         except RemoteRefsError as e:
             print('Problem with file {} in repository {}'.format(*e.args), file=sys.stderr)
             sys.exit(1)
@@ -151,10 +145,7 @@ def clone_packages(options):
 
 def list_packages(options):
     try:
-        refs = GitRemoteRefsData(options.remoterefs, options.branch, options.repopattern)
-    except GitRepoError as e:
-        print('Problem with repository {}: {}'.format(options.remoterefs, e), file=sys.stderr)
-        sys.exit(1)
+        refs = GitArchiveRefsData(options.remoterefs, options.branch, options.repopattern)
     except RemoteRefsError as e:
         print('Problem with file {} in repository {}'.format(*e.args), file=sys.stderr)
         sys.exit(1)
