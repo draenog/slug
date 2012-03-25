@@ -47,7 +47,7 @@ class GitRemoteRefsData(RemoteRefsData):
             raise RemoteRefsError(REFFILE, path)
 
 class GitArchiveRefsData(RemoteRefsData):
-    def __init__(self, path, pattern, dirpattern=('*')):
+    def __init__(self, pattern, dirpattern=('*')):
         fullrefrepo = 'git://{}/{}'.format(GITSERVER, REFREPO)
         archcmd = GitRepo(None, None).command(['archive', '--format=tgz', '--remote={}'.format(fullrefrepo), 'HEAD'])
         try:

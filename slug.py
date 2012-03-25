@@ -92,7 +92,7 @@ def fetch_packages(options):
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     try:
-        refs = GitArchiveRefsData(options.remoterefs, ptions.branch, options.repopattern)
+        refs = GitArchiveRefsData(options.branch, options.repopattern)
     except RemoteRefsError as e:
         print('Problem with file {} in repository {}'.format(*e.args), file=sys.stderr)
         sys.exit(1)
@@ -124,7 +124,7 @@ def fetch_packages(options):
 
     if options.prune:
         try:
-            refs = GitArchiveRefsData(options.remoterefs, '*')
+            refs = GitArchiveRefsData('*')
         except RemoteRefsError as e:
             print('Problem with file {} in repository {}'.format(*e.args), file=sys.stderr)
             sys.exit(1)
@@ -145,7 +145,7 @@ def clone_packages(options):
 
 def list_packages(options):
     try:
-        refs = GitArchiveRefsData(options.remoterefs, options.branch, options.repopattern)
+        refs = GitArchiveRefsData(options.branch, options.repopattern)
     except RemoteRefsError as e:
         print('Problem with file {} in repository {}'.format(*e.args), file=sys.stderr)
         sys.exit(1)
