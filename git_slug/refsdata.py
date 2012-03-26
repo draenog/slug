@@ -35,17 +35,6 @@ class RemoteRefsData:
                 if self.heads[repo][ref] != EMPTYSHA1:
                     stream.write('{} {} {}\n'.format(self.heads[repo][ref], ref, repo))
 
-class GitRemoteRefsData(RemoteRefsData):
-    def __init__(self, path, pattern, dirpattern=('*')):
-        refsrepo = GitRepo(git_dir=path)
-        if not os.path.isdir(refsrepo.gdir):
-            refsrepo.init('git://' + os.path.join(GITSERVER, REFREPO))
-        refsrepo.fetch(depth=1)
-        showfile = refsrepo.showfile(REFFILE)
-        RemoteRefsData.__init__(self, showfile.stdout, pattern, dirpattern)
-        if showfile.wait():
-            raise RemoteRefsError(REFFILE, path)
-
 class GitArchiveRefsData(RemoteRefsData):
     def __init__(self, pattern, dirpattern=('*')):
         fullrefrepo = 'git://{}/{}'.format(GITSERVER, REFREPO)

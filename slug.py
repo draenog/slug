@@ -53,7 +53,7 @@ def readconfig(path):
     for option in ('newpkgs', 'prune'):
         if config.has_option('PLD', option):
             optionslist[option] = config.getboolean('PLD', option)
-    for option in ('depth', 'repopattern', 'packagesdir', 'remoterefs'):
+    for option in ('depth', 'repopattern', 'packagesdir'):
         if config.has_option('PLD', option):
             optionslist[option] = config.get('PLD', option)
     if config.has_option('PLD','branch'):
@@ -62,7 +62,7 @@ def readconfig(path):
         if config.has_option('PLD', option):
             optionslist[option] = config.getint('PLD', option)
 
-    for pathopt in ('packagesdir', 'remoterefs'):
+    for pathopt in ('packagesdir'):
         if pathopt in optionslist:
             optionslist[pathopt] = os.path.expanduser(optionslist[pathopt])
     return optionslist
@@ -158,8 +158,6 @@ common_options.add_argument('-d', '--packagesdir', help='local directory with gi
 
 common_fetchoptions = argparse.ArgumentParser(add_help=False, parents=[common_options])
 common_fetchoptions.add_argument('-j', '--jobs', help='number of threads to use', default=4, type=int)
-common_fetchoptions.add_argument('-r', '--remoterefs', help='repository with list of all refs',
-    default=os.path.expanduser('~/PLD_clone/Refs.git'))
 common_fetchoptions.add_argument('repopattern', nargs='*', default = ['*'])
 
 parser = argparse.ArgumentParser(description='PLD tool for interaction with git repos',
@@ -193,8 +191,6 @@ fetch.set_defaults(func=clone_packages, branch='[*]', prune=False, depth=0, newp
 
 listpkgs = subparsers.add_parser('list', help='list repositories',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-listpkgs.add_argument('-r', '--remoterefs', help='repository with list of all refs',
-    default=os.path.expanduser('~/PLD_clone/Refs.git'))
 listpkgs.add_argument('-b', '--branch', help='show packages with given branch', action=DelAppend, default=['*'])
 listpkgs.add_argument('repopattern', nargs='*', default = ['*'])
 listpkgs.set_defaults(func=list_packages)

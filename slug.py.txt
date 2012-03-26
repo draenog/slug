@@ -34,11 +34,6 @@ OPTIONS
 -j <threads>::
     Set the number of threads which are used for fetching operations.
 
--r <repository>::
---remoterefs <repository>::
-    The location of special git repository necessary for slug.py operations. By
-    default $HOME/PLD_clone/Refs.git is assumed.
-
 COMMANDS
 --------
 
