@@ -39,7 +39,6 @@ def lock(path=LOCKFILE):
             f.close()
             os.remove(path)
 
-
 def convertstream(stream):
     for line in stream:
         (sha1, ref, repo) = line.decode('utf-8').split()
@@ -91,8 +90,12 @@ def runwatch(user=None):
         if not os.path.isdir(directory):
             print('Creating {}'.format(directory))
             os.mkdir(directory)
+
+    refrepo = GitRepo(git_dir=REFREPO_GDIR)
     if not os.path.isdir(REFREPO_GDIR):
-        GitRepo(git_dir=REFREPO_GDIR).init_gitdir()
+        refrepo.init_gitdir()
+    refrepo.commandexc(['config', 'daemon.uploadarch', 'true'])
+
 
     with lock(LOCKFILE):
         wm = pyinotify.WatchManager()  # Watch Manager
