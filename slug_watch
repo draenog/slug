@@ -16,6 +16,8 @@ from git_slug.serverconst import WATCHDIR
 from git_slug.gitrepo import GitRepo
 
 LOCKFILE = 'slug_watch.lock'
+PROJECTS_LIST = 'projects.list'
+PROJECTS_LIST_NEW = PROJECTS_LIST + '.new'
 REFFILE_NEW = REFFILE + '.new'
 REFREPO_WDIR = 'Refs'
 REFREPO_GDIR = os.path.join('repositories', REFREPO+'.git')
@@ -56,20 +58,24 @@ def process_file(pathname):
     if not os.path.isfile(pathname):
         print('{} is not an ordinary file'.format(pathname))
         return
-    with open(os.path.join(REFREPO_WDIR, REFFILE),'w') as headfile_new, open(pathname, 'r') as newfile:
+    with open(os.path.join(REFREPO_WDIR, REFFILE),'w') as headfile_new, open(pathname, 'r') as newfile, \
+            open(PROJECTS_LIST_NEW,'w') as projects:
         committer = newfile.readline().strip()
-        oldtuple = None
+        oldtuple = (None, None)
         refrepo = GitRepo(git_dir=REFREPO_GDIR)
         process = refrepo.showfile(REFFILE, 'master')
         headfile = process.stdout
         for (repo, ref, number, sha1) in heapq.merge(sorted(processnewfile(newfile)), convertstream(headfile)):
             if (repo, ref) == oldtuple:
                 continue
-            oldtuple = (repo, ref)
             if sha1 != EMPTYSHA1:
                 print(sha1, ref, repo, file=headfile_new)
+                if repo != oldtuple[0]:
+                    print('packages/'+repo+'.git', file=projects)
+            oldtuple = (repo, ref)
         process.wait()
 
+    os.rename(PROJECTS_LIST_NEW, PROJECTS_LIST)
     headrepo = GitRepo(REFREPO_WDIR, REFREPO_GDIR)
     headrepo.commitfile(REFFILE, 'Changes by {}'.format(committer))
     os.remove(pathname)
