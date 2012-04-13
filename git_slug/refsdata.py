@@ -11,6 +11,9 @@ from .gitrepo import GitRepo
 class RemoteRefsError(Exception):
     pass
 
+class NoMatchedRepos(Exception):
+    pass
+
 class RemoteRefsData:
     def __init__(self, stream, pattern, dirpattern=('*',)):
         self.heads = collections.defaultdict(lambda: collections.defaultdict(lambda: EMPTYSHA1))
@@ -22,6 +25,8 @@ class RemoteRefsData:
             (sha1, ref, repo) = line.split()
             if pats.match(ref) and dirpat.match(repo):
                 self.heads[repo][ref] = sha1
+        if not self.heads:
+            raise NoMatchedRepos
 
     def put(self, repo, data):
         for line in data:

@@ -16,7 +16,7 @@ import configparser
 
 from git_slug.gitconst import GITLOGIN, GITSERVER, GIT_REPO, GIT_REPO_PUSH, REMOTEREFS
 from git_slug.gitrepo import GitRepo, GitRepoError
-from git_slug.refsdata import GitArchiveRefsData, RemoteRefsError
+from git_slug.refsdata import GitArchiveRefsData, NoMatchedRepos, RemoteRefsError
 
 class DelAppend(argparse._AppendAction):
     def __call__(self, parser, namespace, values, option_string=None):
@@ -88,6 +88,9 @@ def getrefs(*args):
     except RemoteRefsError as e:
         print('Problem with file {} in repository {}'.format(*e.args), file=sys.stderr)
         sys.exit(1)
+    except NoMatchedRepos:
+        print('No matching package has been found', file=sys.stderr)
+        sys.exit(2)
     return refs
 
 def fetch_packages(options):
