@@ -82,6 +82,14 @@ def create_packages(options):
     for package in options.packages:
         createpackage(package, options)
 
+def getrefs(*args):
+    try:
+        refs = GitArchiveRefsData(*args)
+    except RemoteRefsError as e:
+        print('Problem with file {} in repository {}'.format(*e.args), file=sys.stderr)
+        sys.exit(1)
+    return refs
+
 def fetch_packages(options):
     fetch_queue = queue.Queue()
     for i in range(options.jobs):
@@ -91,13 +99,7 @@ def fetch_packages(options):
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    try:
-        refs = GitArchiveRefsData(options.branch, options.repopattern)
-    except RemoteRefsError as e:
-        print('Problem with file {} in repository {}'.format(*e.args), file=sys.stderr)
-        sys.exit(1)
-
-
+    refs = getrefs(options.branch, options.repopattern)
     print('Read remotes data')
     updated_repos = []
     for pkgdir in sorted(refs.heads):
@@ -123,11 +125,7 @@ def fetch_packages(options):
     fetch_queue.join()
 
     if options.prune:
-        try:
-            refs = GitArchiveRefsData('*')
-        except RemoteRefsError as e:
-            print('Problem with file {} in repository {}'.format(*e.args), file=sys.stderr)
-            sys.exit(1)
+        refs = getrefs('*')
         for pattern in options.repopattern:
             for fulldir in glob.iglob(os.path.join(options.packagesdir, pattern)):
                 pkgdir = os.path.basename(fulldir)
@@ -144,11 +142,7 @@ def clone_packages(options):
             print('Problem with checking branch master in repo {}: {}'.format(repo.gdir, e), file=sys.stderr)
 
 def list_packages(options):
-    try:
-        refs = GitArchiveRefsData(options.branch, options.repopattern)
-    except RemoteRefsError as e:
-        print('Problem with file {} in repository {}'.format(*e.args), file=sys.stderr)
-        sys.exit(1)
+    refs = getrefs(options.branch, options.repopattern)
     for package in sorted(refs.heads):
         print(package)
 
