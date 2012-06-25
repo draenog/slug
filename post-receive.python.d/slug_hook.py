@@ -1,11 +1,11 @@
 import os
 import tempfile
 
-from git_slug.serverconst import WATCHDIR
-
 
 def run(data):
-    global WATCHDIR
+    WATCHDIR = os.getenv('WATCHDIR')
+    if WATCHDIR is None:
+        print('Envrionment variable WATCHDIR not defined', file=sys.stderr)
     WATCHDIR = os.path.join(os.path.expanduser('~'), WATCHDIR)
     gitrepo = os.environ.get('GL_REPO')
     if gitrepo.startswith('packages/'):
