@@ -1,1 +1,0 @@
-WATCHDIR = 'watchdir'
