@@ -12,7 +12,6 @@ from contextlib import contextmanager
 
 import Daemon.daemon
 from git_slug.gitconst import EMPTYSHA1, REFREPO, REFFILE
-from git_slug.serverconst import WATCHDIR
 from git_slug.gitrepo import GitRepo
 
 LOCKFILE = 'slug_watch.lock'
@@ -20,7 +19,6 @@ PROJECTS_LIST = 'projects.list'
 PROJECTS_LIST_NEW = PROJECTS_LIST + '.new'
 REFFILE_NEW = REFFILE + '.new'
 REFREPO_WDIR = 'Refs'
-REFREPO_GDIR = os.path.join('repositories', REFREPO+'.git')
 
 
 def sigtermhandler(no, stack):
@@ -116,7 +114,12 @@ def runwatch(user=None):
 parser = ArgumentParser(description='daemon to register changes in PLD repositories')
 parser.add_argument('-d', '--daemon', nargs='?', choices=['start', 'stop'], default=None, const='start')
 parser.add_argument('-u', '--user')
+parser.add_argument('-r', '--refrepodir', required=True)
+parser.add_argument('-w', '--watchdir', required=True)
 options = parser.parse_args()
+
+REFREPO_GDIR = os.path.join(options.refrepodir, REFREPO+'.git')
+WATCHDIR = options.watchdir
 
 class SlugWatch(Daemon.daemon.daemon):
     def __init__(self, user, pidfile):
