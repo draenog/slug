@@ -7,6 +7,7 @@ import os
 import pwd
 import pyinotify
 import signal
+import sys
 
 from contextlib import contextmanager
 
@@ -63,14 +64,18 @@ def process_file(pathname):
         refrepo = GitRepo(git_dir=REFREPO_GDIR)
         process = refrepo.showfile(REFFILE, 'master')
         headfile = process.stdout
-        for (repo, ref, number, sha1) in heapq.merge(sorted(processnewfile(newfile)), convertstream(headfile)):
-            if (repo, ref) == oldtuple:
-                continue
-            if sha1 != EMPTYSHA1:
-                print(sha1, ref, repo, file=headfile_new)
-                if repo != oldtuple[0]:
-                    print('packages/'+repo+'.git', file=projects)
-            oldtuple = (repo, ref)
+        try:
+            for (repo, ref, number, sha1) in heapq.merge(sorted(processnewfile(newfile)), convertstream(headfile)):
+                if (repo, ref) == oldtuple:
+                    continue
+                if sha1 != EMPTYSHA1:
+                    print(sha1, ref, repo, file=headfile_new)
+                    if repo != oldtuple[0]:
+                        print('packages/'+repo+'.git', file=projects)
+                oldtuple = (repo, ref)
+        except ValueError:
+            print("Problem with file: ", pathname, file=sys.stderr)
+            return
         process.wait()
 
     os.rename(PROJECTS_LIST_NEW, PROJECTS_LIST)
