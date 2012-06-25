@@ -2,14 +2,17 @@
 
 . $(dirname $0)/adc.common-functions
 
+[ -n "$ATTIC" ] || die "Error: ATTIC not set"
+[ -d "$ATTIC" ] || mkdir $ATTIC
+[ -n "$WATCHDIR" ] || die 'Error: WATCHDIR not set'
+[ -d "$WATCHDIR" ] || die "Error: $WATCHDIR does not exist"
+
 [ -z "$1" ] && die 'Error: Need a repo name'
 
 get_rights_and_owner gitolite-admin
 [ -z "$perm_write" ] && die "Error: You do not have permission to remove repositories"
 
-ATTIC=$HOME/Attic
 ATTIC_SUFFIX=`date +%Y-%m-%d_%H:%M:%S`
-WATCHDIR=$HOME/watchdir
 EMPTYSHA1='0000000000000000000000000000000000000000'
 
 repo=$1
