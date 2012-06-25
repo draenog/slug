@@ -24,6 +24,6 @@ echo "Repository removed by $GL_USER" > $repofull/.gitolite.down
 ( echo $GL_USER
   echo $1
   GIT_DIR=$repofull git for-each-ref  --format="%(objectname) $EMPTYSHA1 %(refname)" refs/heads/\*
-  ) > $WATCHDIR/`mktemp $1.XXXXXX`
+  ) > "$WATCHDIR/$1.$$"
 
 mv $repofull $newdir/$ATTIC_SUFFIX
