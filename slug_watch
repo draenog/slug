@@ -3,6 +3,8 @@
 from argparse import ArgumentParser
 import fcntl
 import heapq
+import logging
+import logging.handlers
 import os
 import pwd
 import pyinotify
@@ -74,7 +76,7 @@ def process_file(pathname):
                         print('packages/'+repo+'.git', file=projects)
                 oldtuple = (repo, ref)
         except ValueError:
-            print("Problem with file: ", pathname, file=sys.stderr)
+            logger.error("Problem with file: {}".format(pathname))
             return
         process.wait()
 
@@ -88,36 +90,44 @@ class EventHandler(pyinotify.ProcessEvent):
         process_file(event.pathname)
 
 def runwatch(user=None):
-    if user is not None:
-        uid = pwd.getpwnam(user).pw_uid
-        gid = pwd.getpwnam(user).pw_gid
-        os.setgid(gid)
-        os.setuid(uid)
+    logger.info("Starting")
+    try:
+        if user is not None:
+            uid = pwd.getpwnam(user).pw_uid
+            gid = pwd.getpwnam(user).pw_gid
+            os.setgid(gid)
+            os.setuid(uid)
 
-    os.chdir(pwd.getpwuid(os.getuid()).pw_dir)
-    for directory in (WATCHDIR, REFREPO_WDIR):
-        if not os.path.isdir(directory):
-            print('Creating {}'.format(directory))
-            os.mkdir(directory)
+        os.chdir(pwd.getpwuid(os.getuid()).pw_dir)
+        for directory in (WATCHDIR, REFREPO_WDIR):
+            if not os.path.isdir(directory):
+                logger.info('Creating {}'.format(directory))
+                os.mkdir(directory)
 
-    refrepo = GitRepo(git_dir=REFREPO_GDIR)
-    if not os.path.isdir(REFREPO_GDIR):
-        refrepo.init_gitdir()
-    refrepo.commandexc(['config', 'daemon.uploadarch', 'true'])
+        refrepo = GitRepo(git_dir=REFREPO_GDIR)
+        if not os.path.isdir(REFREPO_GDIR):
+            refrepo.init_gitdir()
+        refrepo.commandexc(['config', 'daemon.uploadarch', 'true'])
 
 
-    with lock(LOCKFILE):
-        wm = pyinotify.WatchManager()  # Watch Manager
-        mask = pyinotify.IN_CLOSE_WRITE # watched events
-        notifier = pyinotify.Notifier(wm, EventHandler())
-        wm.add_watch(WATCHDIR, mask, rec=False)
-        for filename in sorted(os.listdir(WATCHDIR), key=lambda f: os.stat(os.path.join(WATCHDIR, f)).st_mtime):
-            process_file(os.path.join(WATCHDIR, filename))
-        notifier.loop()
+        with lock(LOCKFILE):
+            wm = pyinotify.WatchManager()  # Watch Manager
+            mask = pyinotify.IN_CLOSE_WRITE # watched events
+            notifier = pyinotify.Notifier(wm, EventHandler())
+            wm.add_watch(WATCHDIR, mask, rec=False)
+            for filename in sorted(os.listdir(WATCHDIR), key=lambda f: os.stat(os.path.join(WATCHDIR, f)).st_mtime):
+                process_file(os.path.join(WATCHDIR, filename))
+            notifier.loop()
+    except SystemExit:
+        logger.info("Stopped")
+    except:
+        logger.exception('Got exception')
+        raise
 
 
 parser = ArgumentParser(description='daemon to register changes in PLD repositories')
 parser.add_argument('-d', '--daemon', nargs='?', choices=['start', 'stop'], default=None, const='start')
+parser.add_argument('-m', '--maillogs', action='append')
 parser.add_argument('-u', '--user')
 parser.add_argument('-r', '--refrepodir', required=True)
 parser.add_argument('-w', '--watchdir', required=True)
@@ -125,6 +135,21 @@ options = parser.parse_args()
 
 REFREPO_GDIR = os.path.join(options.refrepodir, REFREPO+'.git')
 WATCHDIR = options.watchdir
+
+logger = logging.getLogger('slug_watch')
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(name)s: %(levelname)s %(message)s')
+print(options)
+if options.maillogs is not None:
+    handler_email = logging.handlers.SMTPHandler("localhost", "slug_watch", options.maillogs, "slug_watch status")
+    handler_email.setFormatter(formatter)
+    logger.addHandler(handler_email)
+if options.daemon  is not None:
+    handler = logging.handlers.SysLogHandler(address="/dev/log", facility="daemon")
+else:
+    handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(name)s: %(levelname)s %(message)s'))
+logger.addHandler(handler)
 
 class SlugWatch(Daemon.daemon.daemon):
     def __init__(self, user, pidfile):
