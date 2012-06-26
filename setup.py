@@ -10,6 +10,6 @@ setup(name='git-core-slug',
       url='https://github.com/draenog/slug',
       classifiers=['Programming Language :: Python :: 3'],
       packages=['git_slug', 'Daemon'],
-      data_files=[('adc/bin', ['adc/trash'])],
+      data_files=[('adc/bin', ['adc/trash', 'adc/move'])],
       scripts=['slug.py', 'slug_watch']
      )

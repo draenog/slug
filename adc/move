@@ -1,0 +1,27 @@
+#!/bin/sh
+
+. $(dirname $0)/adc.common-functions
+
+[ "$#" -ne 2 ] && die 'Error: move <repo1> <repo2>'
+[ -n "$WATCHDIR" ] || die 'Error: WATCHDIR not set'
+[ -d "$WATCHDIR" ] || die "Error: $WATCHDIR does not exist"
+
+EMPTYSHA1='0000000000000000000000000000000000000000'
+
+move_from="${1%.git}"
+move_from_full="$GL_REPO_BASE_ABS/packages/${move_from}.git"
+get_rights_and_owner "packages/${move_from}"
+[ -z "$perm_write" ] && die "Error: You do not have permission to lock this repository"
+[ -d $move_from_full ] || die "Error: repository $move_from doesn't exist"
+
+move_to="${2%.git}"
+move_to_full="$GL_REPO_BASE_ABS/packages/${move_from}.git"
+$(dirname $0)/create "$move_to" || die "Error in creating new repo"
+
+echo "Repository moved by $GL_USER to $2" >> $move_from_full/.gitolite.down
+git --git-dir="$move_to_full" fetch "$move_from_full" 'refs/*:refs/*'
+
+( echo $GL_USER
+  echo "$move_to"
+  GIT_DIR=$move_to_full git for-each-ref  --format="$EMPTYSHA1 %(objectname)  %(refname)" refs/heads/\*
+  ) > $WATCHDIR/$2.$$
