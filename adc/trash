@@ -15,7 +15,7 @@ get_rights_and_owner gitolite-admin
 ATTIC_SUFFIX=`date +%Y-%m-%d_%H:%M:%S`
 EMPTYSHA1='0000000000000000000000000000000000000000'
 
-repo=$1
+repo="${1%.git}"
 repofull=$GL_REPO_BASE_ABS/packages/$repo.git
 
 [ -d $repofull ] || die "Error: repository $repofull doesn't exist"
