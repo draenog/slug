@@ -15,7 +15,7 @@ get_rights_and_owner "packages/${move_from}"
 [ -d $move_from_full ] || die "Error: repository $move_from doesn't exist"
 
 move_to="${2%.git}"
-move_to_full="$GL_REPO_BASE_ABS/packages/${move_from}.git"
+move_to_full="$GL_REPO_BASE_ABS/packages/${move_to}.git"
 $(dirname $0)/create "$move_to" || die "Error in creating new repo"
 
 echo "Repository moved by $GL_USER to $2" >> $move_from_full/.gitolite.down
