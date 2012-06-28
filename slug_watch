@@ -128,7 +128,7 @@ def runwatch(user=None):
 
 parser = ArgumentParser(description='daemon to register changes in PLD repositories')
 parser.add_argument('-d', '--daemon', nargs='?', choices=['start', 'stop'], default=None, const='start')
-parser.add_argument('-m', '--maillogs', action='append')
+parser.add_argument('-m', '--maillogs', action='append', default=None)
 parser.add_argument('-u', '--user')
 parser.add_argument('-r', '--refrepodir', required=True)
 parser.add_argument('-w', '--watchdir', required=True)
