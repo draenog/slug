@@ -5,7 +5,7 @@ REMOTE_NAME = 'origin'
 REMOTEREFS = join('refs/remotes/', REMOTE_NAME)
 
 GITLOGIN = 'draenog@'
-GITSERVER = 'carme.pld-linux.org'
+GITSERVER = 'git.pld-linux.org'
 _packages_dir = 'packages'
 _packages_remote = join(GITSERVER, _packages_dir)
 GIT_REPO = 'git://' + _packages_remote
