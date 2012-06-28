@@ -20,6 +20,7 @@ $(dirname $0)/create "$move_to" || die "Error in creating new repo"
 
 echo "Repository moved by $GL_USER to $2" >> $move_from_full/.gitolite.down
 git --git-dir="$move_to_full" fetch "$move_from_full" 'refs/*:refs/*'
+mv "$move_from_full/description" "$move_to_full"
 
 ( echo $GL_USER
   echo "$move_to"
