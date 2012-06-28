@@ -97,6 +97,7 @@ def runwatch(user=None):
             gid = pwd.getpwnam(user).pw_gid
             os.setgid(gid)
             os.setuid(uid)
+            os.putenv('HOME', pwd.getpwnam(user).pw_dir)
 
         os.chdir(pwd.getpwuid(os.getuid()).pw_dir)
         for directory in (WATCHDIR, REFREPO_WDIR):
