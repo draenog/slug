@@ -4,7 +4,7 @@ EMPTYSHA1 = '0000000000000000000000000000000000000000'
 REMOTE_NAME = 'origin'
 REMOTEREFS = join('refs/remotes/', REMOTE_NAME)
 
-GITLOGIN = 'draenog@'
+GITLOGIN = 'git@'
 GITSERVER = 'git.pld-linux.org'
 _packages_dir = 'packages'
 _packages_remote = join(GITSERVER, _packages_dir)
