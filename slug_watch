@@ -131,6 +131,7 @@ parser.add_argument('-d', '--daemon', nargs='?', choices=['start', 'stop'], defa
 parser.add_argument('-m', '--maillogs', action='append', default=None)
 parser.add_argument('-u', '--user')
 parser.add_argument('-r', '--refrepodir', required=True)
+parser.add_argument('-s', '--sender')
 parser.add_argument('-w', '--watchdir', required=True)
 options = parser.parse_args()
 
@@ -141,7 +142,9 @@ logger = logging.getLogger('slug_watch')
 logger.setLevel(logging.INFO)
 formatter = logging.Formatter('%(name)s: %(levelname)s %(message)s')
 if options.maillogs is not None:
-    handler_email = logging.handlers.SMTPHandler("localhost", "slug_watch", options.maillogs, "slug_watch status")
+    if options.sender is None:
+        parser.error("Sender of logs is required with -m/--maillogs option")
+    handler_email = logging.handlers.SMTPHandler("localhost", options.sender, options.maillogs, "slug_watch status")
     handler_email.setFormatter(formatter)
     logger.addHandler(handler_email)
 if options.daemon  is not None:
