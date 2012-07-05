@@ -40,6 +40,19 @@ OPTIONS
 COMMANDS
 --------
 
+'checkout' <pattern>...::
+
+Update the remote branches in the set of packages that match at least one of patterns and checkouts the first
+branch in all repositories matching at least one of <patterns>.
+        -b <pattern>;;
+        --branch <pattern>;;
+            Only the remote branches which names match the pattern are updated. If omitted \'master'
+            is assumed.
+        -c;;
+        --checkout <ref>;;
+            Name of ref to checkout. If omitted the remote tracking branch  corresponding to the argument of
+            the first -b option is assumed.
+
 'clone' <pattern> ...::
 
 Clone the repositories which names match at least one of <patterns>.

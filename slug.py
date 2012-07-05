@@ -14,7 +14,7 @@ import argparse
 import signal
 import configparser
 
-from git_slug.gitconst import GITLOGIN, GITSERVER, GIT_REPO, GIT_REPO_PUSH, REMOTEREFS
+from git_slug.gitconst import GITLOGIN, GITSERVER, GIT_REPO, GIT_REPO_PUSH, REMOTE_NAME, REMOTEREFS
 from git_slug.gitrepo import GitRepo, GitRepoError
 from git_slug.refsdata import GitArchiveRefsData, NoMatchedRepos, RemoteRefsError
 
@@ -136,6 +136,18 @@ def fetch_packages(options):
                     shutil.rmtree(fulldir)
     return updated_repos
 
+def checkout_packages(options):
+    if options.checkout is None:
+        options.checkout = "/".join([REMOTE_NAME, options.branch[0]])
+    fetch_packages(options)
+    refs = getrefs(options.branch, options.repopattern)
+    for pkgdir in sorted(refs.heads):
+        repo = GitRepo(os.path.join(options.packagesdir, pkgdir))
+        try:
+            repo.checkout(options.checkout)
+        except GitRepoError as e:
+            print('Problem with checking branch {} in repo {}: {}'.format(options.checkout, repo.gdir, e), file=sys.stderr)
+
 def clone_packages(options):
     for repo in fetch_packages(options):
         try:
@@ -184,6 +196,12 @@ clone.set_defaults(func=clone_packages, branch='[*]', prune=False, newpkgs=True,
 fetch = subparsers.add_parser('fetch', help='fetch repositories', parents=[common_fetchoptions],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 fetch.set_defaults(func=fetch_packages, branch='[*]', prune=False, newpkgs=False, omitexisting=False)
+
+checkout =subparsers.add_parser('checkout', help='checkout repositories', parents=[common_fetchoptions],
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+checkout.add_argument('-b', '--branch', help='branch to fetch', action=DelAppend, default=['master'])
+checkout.add_argument('-c', '--checkout', help='branch to fetch', default=None)
+checkout.set_defaults(func=checkout_packages, newpkgs=True, omitexisting=False)
 
 listpkgs = subparsers.add_parser('list', help='list repositories',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
