@@ -155,6 +155,7 @@ common_options.add_argument('-d', '--packagesdir', help='local directory with gi
 common_fetchoptions = argparse.ArgumentParser(add_help=False, parents=[common_options])
 common_fetchoptions.add_argument('-j', '--jobs', help='number of threads to use', default=4, type=int)
 common_fetchoptions.add_argument('repopattern', nargs='*', default = ['*'])
+common_fetchoptions.add_argument('--depth', help='depth of fetch', default=0)
 
 parser = argparse.ArgumentParser(description='PLD tool for interaction with git repos',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -163,7 +164,6 @@ subparsers = parser.add_subparsers(help='[-h] [options]')
 update = subparsers.add_parser('update', help='fetch repositories', parents=[common_fetchoptions],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 update.add_argument('-b', '--branch', help='branch to fetch', action=DelAppend, default=['master'])
-update.add_argument('--depth', help='depth of fetch', default=0)
 newpkgsopt = update.add_mutually_exclusive_group()
 newpkgsopt.add_argument('-n', '--newpkgs', help='download packages that do not exist on local side',
         action='store_true')
@@ -179,11 +179,11 @@ init.set_defaults(func=create_packages)
 
 clone = subparsers.add_parser('clone', help='clone repositories', parents=[common_fetchoptions],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-clone.set_defaults(func=clone_packages, branch='[*]', prune=False, depth=0, newpkgs=True, omitexisting=True)
+clone.set_defaults(func=clone_packages, branch='[*]', prune=False, newpkgs=True, omitexisting=True)
 
 fetch = subparsers.add_parser('fetch', help='fetch repositories', parents=[common_fetchoptions],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-fetch.set_defaults(func=fetch_packages, branch='[*]', prune=False, depth=0, newpkgs=False, omitexisting=False)
+fetch.set_defaults(func=fetch_packages, branch='[*]', prune=False, newpkgs=False, omitexisting=False)
 
 listpkgs = subparsers.add_parser('list', help='list repositories',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
