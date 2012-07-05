@@ -87,6 +87,6 @@ class GitRepo:
             localref = EMPTYSHA1
         return localref
 
-    def showfile(self, filename, ref='origin/master'):
+    def showfile(self, filename, ref="/".join([REMOTE_NAME, "master"])):
         clist = ['show', ref + ':' + filename]
         return self.command(clist)
