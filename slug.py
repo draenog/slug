@@ -184,7 +184,7 @@ clone.set_defaults(func=clone_packages, branch='[*]', prune=False, depth=0, newp
 
 fetch = subparsers.add_parser('fetch', help='fetch repositories', parents=[common_fetchoptions],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-fetch.set_defaults(func=clone_packages, branch='[*]', prune=False, depth=0, newpkgs=False, omitexisting=False)
+fetch.set_defaults(func=fetch_packages, branch='[*]', prune=False, depth=0, newpkgs=False, omitexisting=False)
 
 listpkgs = subparsers.add_parser('list', help='list repositories',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
