@@ -74,8 +74,7 @@ def initpackage(name, options):
     return repo
 
 def createpackage(name, options):
-    if subprocess.Popen(['ssh', GITLOGIN + GITSERVER, 'create', name]).wait():
-        sys.exit(1)
+    subprocess.Popen(['ssh', GITLOGIN + GITSERVER, 'create', name]).wait()
     initpackage(name, options)
 
 def create_packages(options):
