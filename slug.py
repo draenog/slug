@@ -162,7 +162,7 @@ def list_packages(options):
 
 common_options = argparse.ArgumentParser(add_help=False)
 common_options.add_argument('-d', '--packagesdir', help='local directory with git repositories',
-    default=os.path.expanduser('~/PLD_clone/packages'))
+    default=os.path.expanduser('~/rpm/packages'))
 
 common_fetchoptions = argparse.ArgumentParser(add_help=False, parents=[common_options])
 common_fetchoptions.add_argument('-j', '--jobs', help='number of threads to use', default=4, type=int)
