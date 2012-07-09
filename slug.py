@@ -201,6 +201,8 @@ checkout =subparsers.add_parser('checkout', help='checkout repositories', parent
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 checkout.add_argument('-b', '--branch', help='branch to fetch', action=DelAppend, default=['master'])
 checkout.add_argument('-c', '--checkout', help='branch to fetch', default=None)
+checkout.add_argument('-P', '--prune', help='prune git repositories that do no exist upstream',
+        action='store_true')
 checkout.set_defaults(func=checkout_packages, newpkgs=True, omitexisting=False)
 
 listpkgs = subparsers.add_parser('list', help='list repositories',
