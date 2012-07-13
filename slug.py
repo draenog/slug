@@ -158,7 +158,9 @@ def checkout_packages(options):
         options.checkout = "/".join([REMOTE_NAME, options.branch[0]])
     fetch_packages(options)
     refs = getrefs(options.branch, options.repopattern)
+    print("Checking out branch {} in local repostories".format(options.checkout))
     for pkgdir in sorted(refs.heads):
+        print(pkgdir)
         repo = GitRepo(os.path.join(options.packagesdir, pkgdir))
         try:
             repo.checkout(options.checkout)
