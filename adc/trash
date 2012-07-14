@@ -29,4 +29,13 @@ echo "Repository removed by $GL_USER" > $repofull/.gitolite.down
   GIT_DIR=$repofull git for-each-ref  --format="%(objectname) $EMPTYSHA1 %(refname)" refs/heads/\*
   ) > "$WATCHDIR/$1.$$"
 
+SPECSDIR=$(git config hooks.specsdir)
+[ -n "${SPECSDIR%%/*}" ] &&  SPECSDIR="$HOME/$SPECSDIR"
+if [ -d $SPECSDIR ]; then
+    git --git-dir="$repofull" ls-tree --name-only -r refs/heads/master | grep '\.spec$' |\
+        xargs -I file rm "$SPECSDIR/file"
+else
+    echo "SPECSDIR $SPECSDIR is missing"
+fi
+
 mv $repofull $newdir/$ATTIC_SUFFIX
