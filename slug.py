@@ -18,6 +18,11 @@ from git_slug.gitconst import GITLOGIN, GITSERVER, GIT_REPO, GIT_REPO_PUSH, REMO
 from git_slug.gitrepo import GitRepo, GitRepoError
 from git_slug.refsdata import GitArchiveRefsData, NoMatchedRepos, RemoteRefsError
 
+class UnquoteConfig(configparser.ConfigParser):
+    def get(self, section, option, **kwargs):
+        value = super().get(section, option, **kwargs)
+        return value.strip('"')
+
 class DelAppend(argparse._AppendAction):
     def __call__(self, parser, namespace, values, option_string=None):
         item = copy.copy(getattr(namespace, self.dest, None)) if getattr(namespace, self.dest, None) is not None else []
@@ -47,7 +52,7 @@ class ThreadFetch(threading.Thread):
             self.queue.task_done()
 
 def readconfig(path):
-    config = configparser.ConfigParser(delimiters='=', interpolation=None, strict=False)
+    config = UnquoteConfig(delimiters='=', interpolation=None, strict=False)
     config.read(path)
     optionslist = {}
     for option in ('newpkgs', 'prune'):
