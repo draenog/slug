@@ -54,6 +54,11 @@ class ThreadFetch(threading.Thread):
 def readconfig(path):
     config = UnquoteConfig(delimiters='=', interpolation=None, strict=False)
     config.read(path)
+    try:
+        config.read(path)
+    except UnicodeDecodeError:
+        raise SystemExit("I have problems parsing {} file.\n\
+Check if it is consistent with your locale settings.".format(path))
     optionslist = {}
     for option in ('newpkgs', 'prune'):
         if config.has_option('PLD', option):
