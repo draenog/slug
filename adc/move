@@ -26,3 +26,6 @@ mv "$move_from_full/description" "$move_to_full"
   echo "$move_to"
   GIT_DIR=$move_to_full git for-each-ref  --format="$EMPTYSHA1 %(objectname)  %(refname)" refs/heads/\*
   ) > $WATCHDIR/$2.$$
+
+upstream=$(echo $move_to | tr + -)
+git --git-dir="$move_to_full" push --mirror ssh://git@github.com/pld-linux/$upstream
