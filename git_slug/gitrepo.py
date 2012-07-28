@@ -40,7 +40,7 @@ class GitRepo:
 
     def checkout(self, branch):
         clist = ['checkout', '-m', branch]
-        return self.commandexc(clist)
+        return self.commandexc(clist, stdout=sys.stdout)
 
     def commitfile(self, path, message):
         clist = ['add', path]
