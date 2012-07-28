@@ -1,6 +1,7 @@
 from .gitconst import EMPTYSHA1, REMOTE_NAME, REFFILE
 
 import os
+import sys
 from subprocess import PIPE
 import subprocess
 
@@ -20,14 +21,18 @@ class GitRepo:
         if self.wtree is not None:
             self.command_prefix.append('--work-tree='+self.wtree)
 
-    def command(self, clist):
-        return subprocess.Popen(self.command_prefix + clist, stdout=PIPE, stderr=PIPE, bufsize=-1)
+    def command(self, clist, stdout=None, stderr=None):
+        if stdout is None:
+            stdout = PIPE
+        if stderr is None:
+            stderr = PIPE
+        return subprocess.Popen(self.command_prefix + clist, stdout=stdout, stderr=stderr, bufsize=-1)
 
-    def commandio(self, clist):
-        return self.command(clist).communicate()
+    def commandio(self, clist, stdout=None, stderr=None):
+        return self.command(clist, stdout, stderr).communicate()
 
-    def commandexc(self, clist):
-        proc = self.command(clist)
+    def commandexc(self, clist, stdout=None, stderr=None):
+        proc = self.command(clist, stdout, stderr)
         (out, err) = proc.communicate()
         if proc.returncode:
             raise GitRepoError(err.decode('utf-8'))
