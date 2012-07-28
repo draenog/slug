@@ -67,6 +67,12 @@ def readconfig(path):
             optionslist[pathopt] = os.path.expanduser(optionslist[pathopt])
     return optionslist
 
+def pullrpmtools(path):
+    _rpmtools = GitRepo(working_tree=path)
+    if (os.path.isdir(_rpmtools.gdir)):
+        print('Pulling rpmtools')
+        _rpmtools.command(['pull',], sys.stdout, sys.stderr)
+
 def initpackage(name, options):
     repo = GitRepo(os.path.join(options.packagesdir, name))
     remotepush = os.path.join(GIT_REPO_PUSH, name)
@@ -93,6 +99,7 @@ def getrefs(*args):
     return refs
 
 def fetch_packages(options):
+    pullrpmtools(os.path.join(options.packagesdir,"../rpm-build-tools"))
     fetch_queue = queue.Queue()
     for i in range(options.jobs):
         t = ThreadFetch(fetch_queue, options.packagesdir, options.depth)
