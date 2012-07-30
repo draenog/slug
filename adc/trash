@@ -39,3 +39,4 @@ else
 fi
 
 mv $repofull $newdir/$ATTIC_SUFFIX
+$HOME/bin/pldgithub.py delete $repo
