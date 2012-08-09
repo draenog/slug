@@ -28,7 +28,7 @@ OPTIONS
 
 -d <directory>::
 --packagesdir <directory>::
-    The local repositories are assumed to reside in $HOME/PLD_clone directory. Use this
+    The local repositories are assumed to reside in $HOME/rpm/packages directory. Use this
     options if you want to use a different location.
 
 --depth <depth>::
