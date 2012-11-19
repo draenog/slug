@@ -179,6 +179,25 @@ def clone_packages(options):
         except GitRepoError as e:
             print('Problem with checking branch master in repo {}: {}'.format(repo.gdir, e), file=sys.stderr)
 
+def pull_packages(options):
+    pkgs = fetch_packages(options, True)
+    print('--------Pulling------------')
+    for directory in sorted(os.listdir(options.packagesdir)):
+        if not directory in pkgs:
+            continue
+        gitrepo = GitRepo(os.path.join(options.packagesdir, directory))
+        try:
+            (out, err) = gitrepo.commandexc(['rev-parse', '-q', '--verify', '@{u}'])
+            sha1 = out.decode().strip()
+            (out, err) = gitrepo.commandexc(['rebase', sha1])
+            for line in out.decode().splitlines():
+                print(directory,":",line)
+        except GitRepoError as e:
+            for line in e.args[0].splitlines():
+                print("{}: {}".format(directory,line))
+            pass
+
+
 def list_packages(options):
     refs = getrefs(options.branch, options.repopattern)
     for package in sorted(refs.heads):
@@ -220,6 +239,10 @@ clone.set_defaults(func=clone_packages, branch='[*]', prune=False, newpkgs=True,
 fetch = subparsers.add_parser('fetch', help='fetch repositories', parents=[common_fetchoptions],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 fetch.set_defaults(func=fetch_packages, branch='[*]', prune=False, newpkgs=False, omitexisting=False)
+
+pull = subparsers.add_parser('pull', help='git-pull in all existing repositories', parents=[common_fetchoptions],
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+pull.set_defaults(func=pull_packages, branch='[*]', prune=False, newpkgs=False, omitexisting=False)
 
 checkout =subparsers.add_parser('checkout', help='checkout repositories', parents=[common_fetchoptions],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
