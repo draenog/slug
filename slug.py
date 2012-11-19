@@ -114,7 +114,7 @@ def getrefs(*args):
         sys.exit(2)
     return refs
 
-def fetch_packages(options):
+def fetch_packages(options, return_all=False):
     fetch_queue = queue.Queue()
     updated_repos = Store()
     for i in range(options.jobs):
@@ -155,7 +155,10 @@ def fetch_packages(options):
                 if len(refs.heads[pkgdir]) == 0 and os.path.isdir(os.path.join(fulldir, '.git')):
                     print('Removing', fulldir)
                     shutil.rmtree(fulldir)
-    return updated_repos.items
+    if return_all:
+        return refs.heads
+    else:
+        return updated_repos.items
 
 def checkout_packages(options):
     if options.checkout is None:
