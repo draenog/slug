@@ -179,6 +179,30 @@ def clone_packages(options):
         except GitRepoError as e:
             print('Problem with checking branch master in repo {}: {}'.format(repo.gdir, e), file=sys.stderr)
 
+def pull_packages(options):
+    repolist = []
+    if options.updateall:
+        pkgs = fetch_packages(options, True)
+        for directory in sorted(os.listdir(options.packagesdir)):
+            if directory in pkgs:
+                repolist.append(GitRepo(os.path.join(options.packagesdir, directory)))
+    else:
+        repolist = fetch_packages(options, False)
+    print('--------Pulling------------')
+    for gitrepo in repolist:
+        directory = os.path.basename(gitrepo.wtree)
+        try:
+            (out, err) = gitrepo.commandexc(['rev-parse', '-q', '--verify', '@{u}'])
+            sha1 = out.decode().strip()
+            (out, err) = gitrepo.commandexc(['rebase', sha1])
+            for line in out.decode().splitlines():
+                print(directory,":",line)
+        except GitRepoError as e:
+            for line in e.args[0].splitlines():
+                print("{}: {}".format(directory,line))
+            pass
+
+
 def list_packages(options):
     refs = getrefs(options.branch, options.repopattern)
     for package in sorted(refs.heads):
@@ -220,6 +244,12 @@ clone.set_defaults(func=clone_packages, branch='[*]', prune=False, newpkgs=True,
 fetch = subparsers.add_parser('fetch', help='fetch repositories', parents=[common_fetchoptions],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 fetch.set_defaults(func=fetch_packages, branch='[*]', prune=False, newpkgs=False, omitexisting=False)
+
+pull = subparsers.add_parser('pull', help='git-pull in all existing repositories', parents=[common_fetchoptions],
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+pull.add_argument('--all', help='update local branches in all repositories', dest='updateall', action='store_true', default=True)
+pull.add_argument('--noall', help='update local branches only when something has been fetched', dest='updateall', action='store_false', default=True)
+pull.set_defaults(func=pull_packages, branch='[*]', prune=False, newpkgs=False, omitexisting=False)
 
 checkout =subparsers.add_parser('checkout', help='checkout repositories', parents=[common_fetchoptions],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
