@@ -180,12 +180,17 @@ def clone_packages(options):
             print('Problem with checking branch master in repo {}: {}'.format(repo.gdir, e), file=sys.stderr)
 
 def pull_packages(options):
-    pkgs = fetch_packages(options, True)
+    repolist = []
+    if options.pullall:
+        pkgs = fetch_packages(options, True)
+        for directory in sorted(os.listdir(options.packagesdir)):
+            if directory in pkgs:
+                repolist.append(GitRepo(os.path.join(options.packagesdir, directory)))
+    else:
+        repolist = fetch_packages(options, False)
     print('--------Pulling------------')
-    for directory in sorted(os.listdir(options.packagesdir)):
-        if not directory in pkgs:
-            continue
-        gitrepo = GitRepo(os.path.join(options.packagesdir, directory))
+    for gitrepo in repolist:
+        directory = os.path.basename(gitrepo.wtree)
         try:
             (out, err) = gitrepo.commandexc(['rev-parse', '-q', '--verify', '@{u}'])
             sha1 = out.decode().strip()
@@ -260,4 +265,5 @@ listpkgs.set_defaults(func=list_packages)
 
 parser.set_defaults(**readconfig(os.path.expanduser('~/.gitconfig')))
 options = parser.parse_args()
+options.pullall = True
 options.func(options)
