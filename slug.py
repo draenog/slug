@@ -181,7 +181,7 @@ def clone_packages(options):
 
 def pull_packages(options):
     repolist = []
-    if options.pullall:
+    if options.updateall:
         pkgs = fetch_packages(options, True)
         for directory in sorted(os.listdir(options.packagesdir)):
             if directory in pkgs:
@@ -247,6 +247,8 @@ fetch.set_defaults(func=fetch_packages, branch='[*]', prune=False, newpkgs=False
 
 pull = subparsers.add_parser('pull', help='git-pull in all existing repositories', parents=[common_fetchoptions],
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+pull.add_argument('--all', help='try update local branches in all repositories', dest='updateall', action='store_true', default=True)
+pull.add_argument('--noall', help='try update local branches in all repositories', dest='updateall', action='store_false', default=True)
 pull.set_defaults(func=pull_packages, branch='[*]', prune=False, newpkgs=False, omitexisting=False)
 
 checkout =subparsers.add_parser('checkout', help='checkout repositories', parents=[common_fetchoptions],
@@ -265,5 +267,5 @@ listpkgs.set_defaults(func=list_packages)
 
 parser.set_defaults(**readconfig(os.path.expanduser('~/.gitconfig')))
 options = parser.parse_args()
-options.pullall = True
+print(options)
 options.func(options)
