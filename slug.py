@@ -18,6 +18,15 @@ from git_slug.gitconst import GITLOGIN, GITSERVER, GIT_REPO, GIT_REPO_PUSH, REMO
 from git_slug.gitrepo import GitRepo, GitRepoError
 from git_slug.refsdata import GitArchiveRefsData, NoMatchedRepos, RemoteRefsError
 
+class Store():
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.items = []
+
+    def put(self, item):
+        with self.lock:
+            self.items.append(item)
+
 class UnquoteConfig(configparser.ConfigParser):
     def get(self, section, option, **kwargs):
         value = super().get(section, option, **kwargs)
@@ -35,11 +44,12 @@ class DelAppend(argparse._AppendAction):
         setattr(namespace, self.dest, item)
 
 class ThreadFetch(threading.Thread):
-    def __init__(self, queue, pkgdir, depth=0):
+    def __init__(self, queue, output, pkgdir, depth=0):
         threading.Thread.__init__(self)
         self.queue = queue
         self.packagesdir = pkgdir
         self.depth = depth
+        self.output = output
 
     def run(self):
         while True:
@@ -48,6 +58,7 @@ class ThreadFetch(threading.Thread):
                 (stdout, stderr) = gitrepo.fetch(ref2fetch, self.depth)
                 if stderr != b'':
                     print('------', gitrepo.gdir[:-len('.git')], '------\n' + stderr.decode('utf-8'))
+                    self.output.put(gitrepo)
             except GitRepoError as e:
                 print('------', gitrepo.gdir[:-len('.git')], '------\n', e)
             self.queue.task_done()
@@ -105,8 +116,9 @@ def getrefs(*args):
 
 def fetch_packages(options):
     fetch_queue = queue.Queue()
+    updated_repos = Store()
     for i in range(options.jobs):
-        t = ThreadFetch(fetch_queue, options.packagesdir, options.depth)
+        t = ThreadFetch(fetch_queue, updated_repos, options.packagesdir, options.depth)
         t.setDaemon(True)
         t.start()
 
@@ -114,7 +126,6 @@ def fetch_packages(options):
 
     refs = getrefs(options.branch, options.repopattern)
     print('Read remotes data')
-    updated_repos = []
     for pkgdir in sorted(refs.heads):
         gitdir = os.path.join(options.packagesdir, pkgdir, '.git')
         if not os.path.isdir(gitdir):
@@ -133,7 +144,6 @@ def fetch_packages(options):
         if ref2fetch:
             ref2fetch.append('refs/notes/*:refs/notes/*')
             fetch_queue.put((gitrepo, ref2fetch))
-            updated_repos.append(gitrepo)
 
     fetch_queue.join()
 
@@ -145,7 +155,7 @@ def fetch_packages(options):
                 if len(refs.heads[pkgdir]) == 0 and os.path.isdir(os.path.join(fulldir, '.git')):
                     print('Removing', fulldir)
                     shutil.rmtree(fulldir)
-    return updated_repos
+    return updated_repos.items
 
 def checkout_packages(options):
     if options.checkout is None:
