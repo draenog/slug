@@ -30,7 +30,7 @@ class GitRepo:
         proc = self.command(clist)
         (out, err) = proc.communicate()
         if proc.returncode:
-            raise GitRepoError(err.decode('utf-8'))
+            raise GitRepoError((out + err).decode('utf-8'))
         return (out, err)
 
     def checkout(self, branch):
