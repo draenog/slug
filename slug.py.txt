@@ -13,6 +13,7 @@ SYNOPSIS
 'slug.py fetch' [-d dir] [--depth depth]  [-j <threads>] pattern...
 'slug.py init' [-d dir] [-j <threads>] package...
 'slug.py list' [-b pattern...] pattern...
+'slug.py pull' [-d dir] [--depth depth]  [-j <threads>] pattern...
 'slug.py update' [-d dir] [--depth depth] [-j <threads>] [-n|-nn] [-P]
                  pattern...
 
@@ -71,6 +72,15 @@ Print the names of upstream repositories matching at least one of patterns.
 +
 With '-b' <pattern> only repositories containing a branch matching the pattern are
 listed. Multiple '-b' options are allowed.
+
+'pull'::
+Update the remote branches in the set of packages that match at least on of the patterns
+and rebase local changes on top of remote-tracking branch corresponding to local branch.
+It is faster equivalent to performing git pull --rebase in every local repository.
+        --all;;
+            Perform rebase in all local repositories.
+        --noall;;
+            Perform rebase only in repositories with new changes fetched.
 
 'update' <pattern>...::
 
