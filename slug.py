@@ -217,11 +217,12 @@ common_fetchoptions.add_argument('-j', '--jobs', help='number of threads to use'
 common_fetchoptions.add_argument('repopattern', nargs='*', default = ['*'])
 common_fetchoptions.add_argument('--depth', help='depth of fetch', default=0)
 
+default_options = {}
 parser = argparse.ArgumentParser(description='PLD tool for interaction with git repos',
         formatter_class=argparse.RawDescriptionHelpFormatter)
 parser.set_defaults(**readconfig(os.path.expanduser('~/.gitconfig')))
 
-subparsers = parser.add_subparsers(help='[-h] [options]')
+subparsers = parser.add_subparsers(help='[-h] [options]', dest='command')
 update = subparsers.add_parser('update', help='fetch repositories', parents=[common_fetchoptions],
         formatter_class=argparse.RawDescriptionHelpFormatter)
 update.add_argument('-b', '--branch', help='branch to fetch', action=DelAppend, default=['master'])
@@ -232,25 +233,30 @@ newpkgsopt.add_argument('-nn', '--nonewpkgs', help='do not download new packages
 update.add_argument('-P', '--prune', help='prune git repositories that do no exist upstream',
         action='store_true')
 update.set_defaults(func=fetch_packages, omitexisting=False)
+default_options['update'] = {'omitexisting': False}
 
 init = subparsers.add_parser('init', help='init new repository', parents=[common_options],
         formatter_class=argparse.RawDescriptionHelpFormatter)
 init.add_argument('packages', nargs='+', help='list of packages to create')
 init.set_defaults(func=create_packages)
+default_options['init'] = {}
 
 clone = subparsers.add_parser('clone', help='clone repositories', parents=[common_fetchoptions],
         formatter_class=argparse.RawDescriptionHelpFormatter)
 clone.set_defaults(func=clone_packages, branch='[*]', prune=False, newpkgs=True, omitexisting=True)
+default_options['clone'] = {'branch': '[*]', 'prune': False, 'newpkgs': True, 'omitexisting': True}
 
 fetch = subparsers.add_parser('fetch', help='fetch repositories', parents=[common_fetchoptions],
         formatter_class=argparse.RawDescriptionHelpFormatter)
 fetch.set_defaults(func=fetch_packages, branch='[*]', prune=False, newpkgs=False, omitexisting=False)
+default_options['fetch'] = {'branch': '[*]', 'prune': False, 'newpkgs': False, 'omitexisting': False}
 
 pull = subparsers.add_parser('pull', help='git-pull in all existing repositories', parents=[common_fetchoptions],
         formatter_class=argparse.RawDescriptionHelpFormatter)
 pull.add_argument('--all', help='update local branches in all repositories', dest='updateall', action='store_true', default=True)
 pull.add_argument('--noall', help='update local branches only when something has been fetched', dest='updateall', action='store_false', default=True)
 pull.set_defaults(func=pull_packages, branch='[*]', prune=False, newpkgs=False, omitexisting=False)
+default_options['pull'] = {'branch': ['*'], 'prune': False, 'newpkgs': False, 'omitexisting': False}
 
 checkout =subparsers.add_parser('checkout', help='checkout repositories', parents=[common_fetchoptions],
         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -259,12 +265,17 @@ checkout.add_argument('-c', '--checkout', help='branch to fetch', default=None)
 checkout.add_argument('-P', '--prune', help='prune git repositories that do no exist upstream',
         action='store_true')
 checkout.set_defaults(func=checkout_packages, newpkgs=True, omitexisting=False)
+default_options['checkout'] = {'newpkgs': True, 'omitexisting': False}
 
 listpkgs = subparsers.add_parser('list', help='list repositories',
         formatter_class=argparse.RawDescriptionHelpFormatter)
 listpkgs.add_argument('-b', '--branch', help='show packages with given branch', action=DelAppend, default=['*'])
 listpkgs.add_argument('repopattern', nargs='*', default = ['*'])
 listpkgs.set_defaults(func=list_packages)
+default_options['list'] = {}
 
 options = parser.parse_args()
+for key in default_options[options.command]:
+    setattr(options, key, default_options[options.command][key])
+
 options.func(options)
