@@ -32,10 +32,16 @@ However be afraid that it will take some time to clone all of them.
 
 If you have already cloned some repositories and you want to update them:
 
-  slug.py fetch 
+  slug.py pull
 
-It will fetch all branches and will store them in 'origin' remote. You can look
-at it as an faster version of executing 'git fetch' for every local repository. 
+It will fetch all branches and will store them in 'origin' remote. Afterwards
+it will rebase your local changes in current branch on top of corresponding
+remote-tracking branch You can look at it as an faster version of executing
+'git pull --rebase for every local repository. 
+
+If you prefer only to update your remote-tracking branches you can run:
+
+  slug.py fetch
 
 
 * Advanced usage
