@@ -219,6 +219,7 @@ common_fetchoptions.add_argument('--depth', help='depth of fetch', default=0)
 
 parser = argparse.ArgumentParser(description='PLD tool for interaction with git repos',
         formatter_class=argparse.RawDescriptionHelpFormatter)
+parser.set_defaults(**readconfig(os.path.expanduser('~/.gitconfig')))
 
 subparsers = parser.add_subparsers(help='[-h] [options]')
 update = subparsers.add_parser('update', help='fetch repositories', parents=[common_fetchoptions],
@@ -265,6 +266,5 @@ listpkgs.add_argument('-b', '--branch', help='show packages with given branch', 
 listpkgs.add_argument('repopattern', nargs='*', default = ['*'])
 listpkgs.set_defaults(func=list_packages)
 
-parser.set_defaults(**readconfig(os.path.expanduser('~/.gitconfig')))
 options = parser.parse_args()
 options.func(options)
