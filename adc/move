@@ -1,8 +1,9 @@
 #!/bin/sh
 
 . $(dirname $0)/adc.common-functions
+PROG=$(basename $0)
 
-[ "$#" -ne 2 ] && die 'Error: move <repo1> <repo2>'
+[ "$#" -ne 2 ] && die 'Error: $PROG <repo1> <repo2>'
 [ -n "$WATCHDIR" ] || die 'Error: WATCHDIR not set'
 [ -d "$WATCHDIR" ] || die "Error: $WATCHDIR does not exist"
 
@@ -18,9 +19,20 @@ move_to="${2%.git}"
 move_to_full="$GL_REPO_BASE_ABS/packages/${move_to}.git"
 $(dirname $0)/create "$move_to" || die "Error in creating new repo"
 
-echo "Repository moved by $GL_USER to $2" >> $move_from_full/.gitolite.down
 git --git-dir="$move_to_full" fetch "$move_from_full" 'refs/*:refs/*'
-mv "$move_from_full/description" "$move_to_full"
+
+case $PROG in
+    copy)
+        cmd=cp
+        ;;
+    move)
+        cmd=mv
+        echo "Repository moved by $GL_USER to $2" >> $move_from_full/.gitolite.down
+        ;;
+    *)
+        die 'Error: $PROG called with name different from copy or move'
+esac
+$cmd "$move_from_full/description" "$move_to_full"
 
 ( echo $GL_USER
   echo "$move_to"
