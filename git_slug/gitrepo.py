@@ -3,6 +3,7 @@ from .gitconst import EMPTYSHA1, REMOTE_NAME, REFFILE
 import os
 from subprocess import PIPE
 import subprocess
+import sys
 
 class GitRepoError(Exception):
     pass
@@ -71,6 +72,8 @@ class GitRepo:
             raise GitRepoError(self.gdir)
 
     def init(self, remotepull, remotepush = None, remotename=REMOTE_NAME):
+        if os.path.isdir(self.gdir):
+            print("WARNING: Directory {} already existed".format(self.gdir), file=sys.stderr)
         self.init_gitdir()
         self.commandio(['remote', 'add', remotename, remotepull])
         if remotepush is not None:
