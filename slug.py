@@ -275,7 +275,9 @@ listpkgs.set_defaults(func=list_packages)
 default_options['list'] = {}
 
 options = parser.parse_args()
-for key in default_options[options.command]:
-    setattr(options, key, default_options[options.command][key])
-
-options.func(options)
+if hasattr(options, "func"):
+    for key in default_options[options.command]:
+        setattr(options, key, default_options[options.command][key])
+    options.func(options)
+else:
+    parser.print_help()
