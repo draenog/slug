@@ -41,3 +41,14 @@ $cmd "$move_from_full/description" "$move_to_full"
 
 upstream=$(echo $move_to | tr + -)
 git --git-dir="$move_to_full" push --mirror ssh://git@github.com/pld-linux/$upstream
+
+mailinglist=$(git config hooks.mailinglist)
+if [ -n "$mailinglist" ]; then
+    /usr/sbin/sendmail -t <<EOF
+From: $GL_USER@pld-linux.org
+To: $mailinglist
+Subject: [$PROG command] packages/$move_from -> packages/$move_to
+Reply-To: $(git config hooks.replyto)
+
+EOF
+fi
