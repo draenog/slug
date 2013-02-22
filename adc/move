@@ -1,8 +1,9 @@
 #!/bin/sh
 
 . $(dirname $0)/adc.common-functions
+PROG=$(basename $0)
 
-[ "$#" -ne 2 ] && die 'Error: move <repo1> <repo2>'
+[ "$#" -ne 2 ] && die 'Error: $PROG <repo1> <repo2>'
 [ -n "$WATCHDIR" ] || die 'Error: WATCHDIR not set'
 [ -d "$WATCHDIR" ] || die "Error: $WATCHDIR does not exist"
 
@@ -18,9 +19,26 @@ move_to="${2%.git}"
 move_to_full="$GL_REPO_BASE_ABS/packages/${move_to}.git"
 $(dirname $0)/create "$move_to" || die "Error in creating new repo"
 
-echo "Repository moved by $GL_USER to $2" >> $move_from_full/.gitolite.down
-git --git-dir="$move_to_full" fetch "$move_from_full" 'refs/*:refs/*'
-mv "$move_from_full/description" "$move_to_full"
+git --git-dir="$move_to_full" fetch -q "$move_from_full" 'refs/*:refs/*'
+
+case $PROG in
+    copy)
+        cmd=cp
+        ;;
+    move)
+        cmd=mv
+        echo "Repository moved by $GL_USER to $2" >> $move_from_full/.gitolite.down
+        ;;
+    *)
+        die 'Error: $PROG called with name different from copy or move'
+esac
+$cmd "$move_from_full/description" "$move_to_full"
+if [ "$cmd" = 'cp' ]; then
+    git --git-dir="$move_to_full" for-each-ref --format='%(refname)'  refs/tags/auto/ 'refs/heads/R[aA]-branch' | \
+        while read ref; do
+            git --git-dir="$move_to_full" update-ref -d "$ref"
+        done
+fi
 
 ( echo $GL_USER
   echo "$move_to"
@@ -29,3 +47,14 @@ mv "$move_from_full/description" "$move_to_full"
 
 upstream=$(echo $move_to | tr + -)
 git --git-dir="$move_to_full" push --mirror ssh://git@github.com/pld-linux/$upstream
+
+mailinglist=$(git config hooks.mailinglist)
+if [ -n "$mailinglist" ]; then
+    /usr/sbin/sendmail -t <<EOF
+From: $GL_USER@pld-linux.org
+To: $mailinglist
+Subject: [$PROG command] packages/$move_from -> packages/$move_to
+Reply-To: $(git config hooks.replyto)
+
+EOF
+fi
