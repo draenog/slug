@@ -12,6 +12,7 @@ import signal
 import sys
 
 from contextlib import contextmanager
+from urllib.parse import quote_plus
 
 import Daemon.daemon
 from git_slug.gitconst import EMPTYSHA1, REFREPO, REFFILE
@@ -73,7 +74,7 @@ def process_file(pathname):
                 if sha1 != EMPTYSHA1:
                     print(sha1, ref, repo, file=headfile_new)
                     if repo != oldtuple[0]:
-                        print('packages/'+repo+'.git', file=projects)
+                        print(quote_plus('packages/'+repo+'.git', safe='/'), file=projects)
                 oldtuple = (repo, ref)
         except ValueError:
             logger.error("Problem with file: {}".format(pathname))
