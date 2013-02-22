@@ -33,6 +33,12 @@ case $PROG in
         die 'Error: $PROG called with name different from copy or move'
 esac
 $cmd "$move_from_full/description" "$move_to_full"
+if [ "$cmd" = 'cp' ]; then
+    git --git-dir="$move_to_full" for-each-ref --format='%(refname)'  refs/tags/auto/ 'refs/heads/R[aA]-branch' | \
+        while read ref; do
+            git --git-dir="$move_to_full" update-ref -d "$ref"
+        done
+fi
 
 ( echo $GL_USER
   echo "$move_to"
