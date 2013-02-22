@@ -19,7 +19,7 @@ move_to="${2%.git}"
 move_to_full="$GL_REPO_BASE_ABS/packages/${move_to}.git"
 $(dirname $0)/create "$move_to" || die "Error in creating new repo"
 
-git --git-dir="$move_to_full" fetch "$move_from_full" 'refs/*:refs/*'
+git --git-dir="$move_to_full" fetch -q "$move_from_full" 'refs/*:refs/*'
 
 case $PROG in
     copy)
