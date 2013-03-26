@@ -8,6 +8,7 @@ import logging.handlers
 import os
 import pwd
 import pyinotify
+import shutil
 import signal
 import sys
 
@@ -21,6 +22,7 @@ from git_slug.gitrepo import GitRepo
 LOCKFILE = 'slug_watch.lock'
 PROJECTS_LIST = 'projects.list'
 PROJECTS_LIST_NEW = PROJECTS_LIST + '.new'
+PROJECTS_LIST_HEAD = PROJECTS_LIST + '.head'
 REFFILE_NEW = REFFILE + '.new'
 REFREPO_WDIR = 'Refs'
 
@@ -60,8 +62,14 @@ def process_file(pathname):
     if not os.path.isfile(pathname):
         print('{} is not an ordinary file'.format(pathname))
         return
+
+    try:
+        shutil.copyfile(PROJECTS_LIST_HEAD, PROJECTS_LIST_NEW)
+    except (OSError, shutil.Error):
+        logger.error('Cannot write {}'.format(PROJECTS_LIST_NEW))
+
     with open(os.path.join(REFREPO_WDIR, REFFILE),'w') as headfile_new, open(pathname, 'r') as newfile, \
-            open(PROJECTS_LIST_NEW,'w') as projects:
+            open(PROJECTS_LIST_NEW,'a') as projects:
         committer = newfile.readline().strip()
         oldtuple = (None, None)
         refrepo = GitRepo(git_dir=REFREPO_GDIR)
