@@ -23,6 +23,7 @@ LOCKFILE = 'slug_watch.lock'
 PROJECTS_LIST = 'projects.list'
 PROJECTS_LIST_NEW = PROJECTS_LIST + '.new'
 PROJECTS_LIST_HEAD = PROJECTS_LIST + '.head'
+PROJECTS_LIST_GITWEB = PROJECTS_LIST + ".gitweb"
 REFFILE_NEW = REFFILE + '.new'
 REFREPO_WDIR = 'Refs'
 
@@ -83,7 +84,7 @@ def process_file(pathname):
                 if sha1 != EMPTYSHA1:
                     print(sha1, ref, repo, file=headfile_new)
                     if repo != oldtuple[0]:
-                        print(quote_plus('packages/'+repo+'.git', safe='/'), file=projects)
+                        print('packages/'+repo+'.git', file=projects)
                 oldtuple = (repo, ref)
         except ValueError:
             logger.error("Problem with file: {}".format(pathname))
@@ -91,6 +92,10 @@ def process_file(pathname):
         process.wait()
 
     os.rename(PROJECTS_LIST_NEW, PROJECTS_LIST)
+    with open(PROJECTS_LIST, 'r') as projects, open(PROJECTS_LIST_GITWEB, 'w') as output:
+        for line in projects:
+            print(quote_plus(line, safe='/\n'), end='', file=output)
+
     headrepo = GitRepo(REFREPO_WDIR, REFREPO_GDIR)
     headrepo.commitfile(REFFILE, 'Changes by {}'.format(committer))
     os.remove(pathname)
