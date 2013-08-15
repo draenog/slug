@@ -63,10 +63,11 @@ def process_file(pathname):
         print('{} is not an ordinary file'.format(pathname))
         return
 
-    try:
-        shutil.copyfile(PROJECTS_LIST_HEAD, PROJECTS_LIST_NEW)
-    except (OSError, shutil.Error):
-        logger.error('Cannot write {}'.format(PROJECTS_LIST_NEW))
+    if os.path.isfile(PROJECTS_LIST_HEAD):
+        try:
+            shutil.copyfile(PROJECTS_LIST_HEAD, PROJECTS_LIST_NEW)
+        except (OSError, shutil.Error):
+            logger.error('Cannot write {}'.format(PROJECTS_LIST_NEW))
 
     with open(os.path.join(REFREPO_WDIR, REFFILE),'w') as headfile_new, open(pathname, 'r') as newfile, \
             open(PROJECTS_LIST_NEW,'a') as projects:
